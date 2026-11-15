@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Thai Tone Master</title>
+<meta name="theme-color" content="#0f1b1d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{--bg:#0f1b1d;--sf:#17282b;--sf2:#203538;--ln:#2f4a4e;--tx:#eaf1ee;--mu:#9bb2ae;--ac:#7fd1c0;--on:#0b1514;--t-mid:#7db4e6;--t-low:#7fd39b;--t-falling:#f07a72;--t-high:#b9a0f2;--t-rising:#f4c457;--thai:'Sarabun',sans-serif}
 [data-theme=light]{--bg:#eef3f0;--sf:#fff;--sf2:#e4ede9;--ln:#c4d4ce;--tx:#12201f;--mu:#52675f;--ac:#0e7a69;--on:#fff;--t-mid:#1b6fb0;--t-low:#12874a;--t-falling:#c93b32;--t-high:#7447d1;--t-rising:#a86f00}
@@ -37,13 +40,14 @@ button,select,textarea,input{font:inherit;color:inherit}
 .btn.sel{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac);color:var(--ac)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
 .btn.sm{padding:5px 10px;font-size:.82rem}
+.btn[aria-pressed=true]{border-color:var(--ac);color:var(--ac)}
 .ic{width:34px;height:34px;border-radius:50%;padding:0;display:inline-grid;place-items:center;flex:none}
 textarea,input[type=text],input[type=search],select{width:100%;background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:12px 14px;outline:none}
 textarea{font:1.6rem/1.4 var(--thai);resize:vertical;min-height:92px}
 select{width:auto;padding:8px 10px}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 label.lb{display:block;font-size:.8rem;font-weight:600;color:var(--mu);margin:0 0 6px}
-.hero{padding:18px 18px 8px;overflow-x:auto;position:relative}
+.hero{padding:18px 18px 8px;overflow-x:auto}
 .hero svg{width:100%;height:auto;display:block}
 .syls{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0}
 .wd{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--sf2)}
@@ -108,7 +112,6 @@ td.l,th.l{text-align:left}
 .orow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln);flex-wrap:wrap}
 .orow:last-child{border-bottom:0}
 .orow b{display:block}
-#pitch-overlay{position:absolute;top:18px;left:18px;width:calc(100% - 36px);height:calc(100% - 26px);pointer-events:none}
 @media(max-width:760px){
 .app{display:block}
 nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;overflow-x:auto;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--ln);z-index:20;gap:2px}
@@ -123,9 +126,9 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 <main>
 <div class="top">
 <span class="pill" id="net"></span>
-<select id="speed" aria-label="Audio Speed"><option value="1">1.0x Speed</option><option value="0.85" selected>0.85x Speed</option><option value="0.6">0.6x Speed</option></select>
-<select id="rom" aria-label="Romanization"><option value="paiboon">Paiboon+</option><option value="rtgs">RTGS</option></select>
-<button class="btn" id="cb-mode" aria-label="Toggle Colorblind Mode">CB Mode</button>
+<select id="rsys" aria-label="Romanization system"><option value="simple">Simple</option><option value="pai">Paiboon+</option><option value="ipa">IPA</option><option value="rtgs">RTGS</option></select>
+<select id="spd" aria-label="Speech speed"><option value="1">1.0x</option><option value="0.85">0.85x</option><option value="0.75">0.75x</option><option value="0.5">0.5x</option></select>
+<button class="btn" id="cbt" aria-pressed="false" aria-label="Tone patterns for color blindness">Patterns</button>
 <select id="font" aria-label="Thai font"><option value="sarabun">Sarabun</option><option value="kanit">Kanit</option><option value="prompt">Prompt</option><option value="mitr">Mitr</option><option value="itim">Itim</option></select>
 <button class="btn" id="theme" aria-label="Toggle theme">Light</button>
 </div>
@@ -206,101 +209,81 @@ const CM=Object.fromEntries(CONS.map(c=>[c.c,c]));
 const T={mid:['Mid','—','สามัญ',[.5,.5,.5,.5,.5]],low:['Low','ˋ','เอก',[.42,.36,.3,.26,.24]],falling:['Falling','ˆ','โท',[.72,.9,.85,.55,.2]],high:['High','ˊ','ตรี',[.5,.62,.75,.88,.92]],rising:['Rising','ˇ','จัตวา',[.36,.24,.2,.4,.82]]};
 const TK=Object.keys(T);
 const MK={'่':'Mai Ek','้':'Mai Tho','๊':'Mai Tri','๋':'Mai Chattawa'};
-const VT=[['เ','ียะ',0,'ia'],['เ','ีย',1,'ia'],['เ','ือะ',0,'uea'],['เ','ือ',1,'uea'],['เ','าะ',0,'o'],['เ','า',1,'ao'],['เ','ะ',0,'e'],['เ','็',0,'e'],['เ','ิ',0,'oe'],['เ','อ',1,'oe'],['เ','',1,'e'],['แ','ะ',0,'ae'],['แ','็',0,'ae'],['แ','',1,'ae'],['โ','ะ',0,'o'],['โ','',1,'o'],['ไ','',1,'ai'],['ใ','',1,'ai'],['','ัว',1,'ua'],['','ัย',0,'ai'],['','ะ',0,'a'],['','ั',0,'a'],['','า',1,'aa'],['','ำ',0,'am'],['','ิ',0,'i'],['','ี',1,'ii'],['','ึ',0,'ue'],['','ือ',1,'ue'],['','ื',1,'ue'],['','ุ',0,'u'],['','ู',1,'uu'],['','็อ',1,'o'],['','อ',1,'o'],['','ว',1,'ua']];
+const VT=[['เ','ียะ',0,'ia'],['เ','ีย',1,'ia'],['เ','ือะ',0,'uea'],['เ','ือ',1,'uea'],['เ','าะ',0,'o','ɔ'],['เ','า',1,'ao'],['เ','ะ',0,'e'],['เ','็',0,'e'],['เ','ิ',0,'oe'],['เ','อ',1,'oe'],['เ','',1,'e'],['แ','ะ',0,'ae'],['แ','็',0,'ae'],['แ','',1,'ae'],['โ','ะ',0,'o','o'],['โ','',1,'o','o'],['ไ','',1,'ai'],['ใ','',1,'ai'],['','ัว',1,'ua'],['','ัย',0,'ai'],['','ะ',0,'a'],['','ั',0,'a'],['','า',1,'aa'],['','ำ',0,'am'],['','ิ',0,'i'],['','ี',1,'ii'],['','ึ',0,'ue'],['','ือ',1,'ue'],['','ื',1,'ue'],['','ุ',0,'u'],['','ู',1,'uu'],['','็อ',1,'o','ɔ'],['','อ',1,'o','ɔ'],['','ว',1,'ua']];
 const VM=/[ะาำัิีึืุู็่้๊๋]/,LV='เแโใไ';
-const EXC={'ก็':{cl:'mid',mk:'',live:false,len:0,tone:'falling',rom:'go',txt:'ก็',init:'ก'},'ฉัน':{cl:'high',mk:'',live:true,len:0,tone:'high',rom:'chan',txt:'ฉัน',init:'ฉ'},'เขา':{cl:'high',mk:'',live:true,len:1,tone:'high',rom:'khao',txt:'เขา',init:'ข'},'ไหม':{cl:'high',mk:'',live:true,len:1,tone:'rising',rom:'mai',txt:'ไหม',init:'หม'}};
 const toneOf=(cl,mk,live,len)=>{
 if(mk){if(mk==='๊')return'high';if(mk==='๋')return'rising';if(mk==='่')return cl==='low'?'falling':'low';return cl==='low'?'high':'falling'}
 if(live)return cl==='high'?'rising':'mid';
 return cl==='low'?(len?'falling':'high'):'low'};
 const ruleText=(cl,mk,live,len,tone)=>mk?`${cl} class + ${MK[mk]} → ${T[tone][0]}`:live?`${cl} class + live syllable → ${T[tone][0]}`:`${cl} class + dead syllable${cl==='low'?` + ${len?'long':'short'} vowel`:''} → ${T[tone][0]}`;
-const rtgs=(i,v,f)=>`${i}${v}${f}`.replace(/j/g,'ch').replace(/oe/g,'oe').replace(/uea/g,'uea').replace(/ua/g,'ua').replace(/ii/g,'i').replace(/uu/g,'u').replace(/aa/g,'a').replace(/ee/g,'e').replace(/oo/g,'o').replace(/aeae/g,'ae');
-const paib=(i,v,f,t)=>{const m={'mid':'','low':'\u0300','falling':'\u0302','high':'\u0301','rising':'\u030C'}[t];return`${i}${v.replace(/a|e|i|o|u/,(x)=>x+m)}${f}`};
-function syl(w,i){
-const st=i;let lead='';
+const CLP=new Set(['กร','กล','กว','ขร','ขล','ขว','คร','คล','คว','ตร','ปร','ปล','พร','พล','ผล','ฟร','ฟล']);
+const EXC={'ก็':{txt:'ก็',init:'ก',ir:'g',cl:'mid',why:'Irregular: ็ on a bare consonant reads as a long o and takes a falling tone',mk:'',vr:'o',vq:'ɔ',len:1,fin:'',fm:'',live:true,tone:'falling',rom:'go',lead:'',irr:true}};
+function syl(w,i,prev){
+const st=i;
+for(const k in EXC)if(w.startsWith(k,i))return{...EXC[k],end:i+k.length};
+let lead='';
 if(LV.includes(w[i])){lead=w[i];i++}
 const a=w[i],A=CM[a];if(!A)return null;
-let init=a,cl=A.cl,ir=A.i,why='',j=i+1;
+let init=a,cl=A.cl,ir=A.i,why='',j=i+1,han=false;
 const b=w[j],n=w[j+1],B=CM[b],ok3=!n||n==='อ'||VM.test(n)||(CM[n]&&!w[j+2]);
-if(a==='ห'&&B&&'งญนมยรลว'.includes(b)&&(!n||VM.test(n)||CM[n]||LV.includes(n))){cl='high';init=a+b;ir=B.i;why='Leading ห is silent and lifts the low sonorant to high class';j++}
+if(b==='ร'&&n==='ร'){han=true;j+=2;why='รร (ro han) reads as a short a'}
+else if(a==='ห'&&B&&'งญนมยรลว'.includes(b)&&(!n||VM.test(n)||CM[n]||LV.includes(n))){cl='high';init=a+b;ir=B.i;why='Leading ห is silent and lifts the low sonorant to high class';j++}
 else if(a==='อ'&&b==='ย'&&/[ูา่้]/.test(n||'')){cl='mid';init='อย';ir='y';why='Leading อ is silent and makes ย mid class';j++}
 else if('ทสศจซ'.includes(a)&&b==='ร'&&ok3){init=a+b;ir=a==='จ'?'j':'s';why='ร is silent after '+a;j++}
-else if('กขคตปพผฟ'.includes(a)&&b&&'รลว'.includes(b)&&ok3){init=a+b;ir=A.i+B.i;why='Cluster: the first letter sets the class';j++}
+else if(b&&CLP.has(a+b)&&(b!=='ว'||/[า่้ั]/.test(n||''))&&ok3){init=a+b;ir=A.i+B.i;why='Cluster: the first letter sets the class';j++}
+if(prev&&prev.inh&&prev.cl!=='low'&&A.cl==='low'&&init===a&&'งญนมยรลว'.includes(a)&&!han){cl=prev.cl;why='Takes '+prev.cl+' class from the unwritten vowel after '+prev.init}
 let rest=w.slice(j),mk='';
 const mi=rest.search(/[่้๊๋]/);
 if(mi>=0&&mi<=3&&/^[ัิีึืุู็]*$/.test(rest.slice(0,mi))){mk=rest[mi];rest=rest.slice(0,mi)+rest.slice(mi+1)}
-const v=VT.find(x=>x[0]===lead&&rest.startsWith(x[1])&&!(x[1]==='ว'&&VM.test(rest[1]||'')))||[lead,'',0,''];
-let k=v[1].length;const r2=rest.slice(k);let fin='';
-if(r2&&CM[r2[0]]&&CM[r2[0]].f!=='-'){
-const n1=r2[1],n2=r2[2];
-if(!((!v[3]&&(VM.test(n1)||CM[n1]||LV.includes(n1)))||(LV.includes(n1)&&(!n2||!CM[n2])))){fin=r2[0];k++}}
-if(lead==='เ'&&fin==='ย'&&!v[1]){v[3]='oei';v[2]=1;fin=''}
-let fm=fin?CM[fin].f:'';
+const v=han?[lead,'',0,'a']:(VT.find(x=>x[0]===lead&&rest.startsWith(x[1])&&!(x[1]==='ว'&&VM.test(rest[1]||'')))||[lead,'',0,'']);
+let k=v[1].length;const r2=rest.slice(k),rt=r2.replace(/[ๆฯ]+/g,'');let fin='',vfin='';
+if(r2&&CM[r2[0]]&&CM[r2[0]].f!=='-'&&(!r2[1]||!VM.test(r2[1]))&&!(!v[3]&&rt.length>=2)){fin=r2[0];k++}
+else if(han)vfin='n';
+let fm=fin?CM[fin].f:vfin;
 if('ไใ'.includes(lead)&&fm==='y')fm='';
-const vr=v[3]||(fin?'o':'a'),stop=/^[ktp]$/.test(fm);
-const live=!stop&&(fm!==''||v[2]===1||vr==='am'||vr==='ai');
+let vr=v[3]||(fin?'o':'a');
+if(lead==='เ'&&v[3]==='e'&&v[1]===''&&fin==='ย'){vr='oei';fm=''}
+const stop=/^[ktp]$/.test(fm),live=!stop&&(fm!==''||v[2]===1||vr==='am'||vr==='ai'||vr==='oei');
+const vq=vr==='aa'?'a':vr==='ii'?'i':vr==='uu'?'u':(vr==='o'&&v[4]==='ɔ')?'ɔ':vr;
 const end=Math.max(j+k+(mk?1:0),st+1);
-const rType=$('#rom').value,tone=toneOf(cl,mk,live,v[2]);
-const rom=rType==='paiboon'?paib(ir,vr,fm,tone):rtgs(ir,vr,fm);
-return{txt:w.slice(st,end),end,cl,init,why,mk,vr,len:v[2],fin,fm,live,tone,rom,lead,ir,baseV:vr}}
+return{txt:w.slice(st,end),end,cl,init,ir,why,mk,vr,vq,len:v[2],fin:fin||(vfin?'รร':''),fm,live,tone:toneOf(cl,mk,live,v[2]),rom:ir+vr+fm,lead,inh:!v[3]&&!fin&&!lead&&!mk&&!han}}
+const silent=s=>s.replace(/(?:ทร|ตร|ษณ|รย|ริย)์/g,'').replace(/[ก-ฮ][ัิีึืุู]*์/g,'');
 function parse(text){
-const t=text.replace(/รร([ก-ฮ])/g,'ั$1').replace(/รร/g,'ัน').replace(/[ก-ฮ]+[ัิีึืุู]*์/g,'');
-const seg=window.Intl&&Intl.Segmenter?[...new Intl.Segmenter('th',{granularity:'word'}).segment(t)].map(s=>s.segment):t.split(/(\s+)/);
+const seg=window.Intl&&Intl.Segmenter?[...new Intl.Segmenter('th',{granularity:'word'}).segment(text)].map(s=>s.segment):text.split(/(\s+)/);
 const out=[];
-for(const w of seg){
-if(!/[฀-๿]/.test(w)){if(w.trim())out.push({x:w});continue}
-if(EXC[w]){out.push({sy:[EXC[w]],w});continue}
-const sy=[];let i=0,prev=null;
-while(i<w.length){
-const s=syl(w,i);if(!s){i++;continue}
-if(prev&&!prev.baseV&&!prev.fin&&prev.cl!=='low'&&'งญนมยรลว'.includes(s.init[0])&&!s.lead){
-s.cl=prev.cl;s.tone=toneOf(s.cl,s.mk,s.live,s.len);s.why=`Inherits ${prev.cl} class from leading ${prev.init}`;
-s.rom=$('#rom').value==='paiboon'?paib(s.ir,s.baseV,s.fm,s.tone):rtgs(s.ir,s.baseV,s.fm);
-}
-sy.push(s);i=s.end;prev=s}
-if(sy.length)out.push({sy,w})}
+for(const w0 of seg){
+if(!/[฀-๿]/.test(w0)){if(w0.trim())out.push({x:w0});continue}
+const w=silent(w0),sy=[];let i=0;
+while(i<w.length){const s=syl(w,i,sy[sy.length-1]);if(!s){i++;continue}sy.push(s);i=s.end}
+if(sy.length)out.push(w!==w0?{sy,w,o:w0}:{sy,w})}
 return out}
+let ROMS=store.get('ttm.rom','simple'),CB=store.get('ttm.cb',false),RATE=Number(store.get('ttm.rate',.85))||.85,deferred=null;
+const DIA={mid:'',low:'̀',falling:'̂',high:'́',rising:'̌'};
+const VQ={a:[['a','aː'],['a','aa'],'a'],i:[['i','iː'],['i','ii'],'i'],u:[['u','uː'],['u','uu'],'u'],ue:[['ɯ','ɯː'],['ʉ','ʉʉ'],'ue'],e:[['e','eː'],['e','ee'],'e'],ae:[['ɛ','ɛː'],['ɛ','ɛɛ'],'ae'],oe:[['ɤ','ɤː'],['ɜ','ɜɜ'],'oe'],o:[['o','oː'],['o','oo'],'o'],'ɔ':[['ɔ','ɔː'],['ɔ','ɔɔ'],'o'],ia:[['ia','iːa'],['ia','iia'],'ia'],uea:[['ɯa','ɯːa'],['ʉa','ʉʉa'],'uea'],ua:[['ua','uːa'],['ua','uua'],'ua'],ao:[['aw','aw'],['ao','ao'],'ao'],ai:[['aj','aj'],['ai','ai'],'ai'],am:[['am','am'],['am','am'],'am'],oei:[['ɤːj','ɤːj'],['ɜɜi','ɜɜi'],'oei']};
+const RMI={ipa:{g:'k',kh:'kʰ',ng:'ŋ',j:'tɕ',ch:'tɕʰ',y:'j',th:'tʰ',ph:'pʰ'},pai:{kh:'k',t:'dt',th:'t',p:'bp',ph:'p'},rtgs:{g:'k',j:'ch'}};
+const RMF={ipa:{ng:'ŋ',w:'w',y:'j'},pai:{w:'o',y:'i'},rtgs:{w:'o',y:'i'}};
+function fr(s){
+if(ROMS==='simple'||!s.vq||!VQ[s.vq])return s.rom;
+const ini=((s.ir||'').match(/kh|ng|ch|th|ph|[gjsydtnbpfmrlwh]/g)||[]).map(x=>RMI[ROMS][x]||x).join('');
+const q=VQ[s.vq];let v=ROMS==='rtgs'?q[2]:q[ROMS==='ipa'?0:1][s.len?1:0];
+const d=ROMS==='rtgs'?'':DIA[s.tone];
+if(d)v=v.replace(/^./u,c=>c+d);
+return ini+v+(s.fm?(RMF[ROMS][s.fm]||s.fm):'')}
+const tn=sy=>sy.map(s=>T[s.tone][0]).join(' · ');
+const DA={mid:'',low:'12 7',falling:'2 8',high:'16 5 3 5',rising:'6 6'};
 const smooth=p=>{let d=`M${p[0][0]} ${p[0][1]}`;for(let i=1;i<p.length-1;i++)d+=`Q${p[i][0]} ${p[i][1]} ${(p[i][0]+p[i+1][0])/2} ${(p[i][1]+p[i+1][1])/2}`;const l=p[p.length-1];return d+`L${l[0]} ${l[1]}`};
 function contour(tones,sel){
-const cb=$('html').dataset.cb==='true',W=tones.length*112+30,H=140;
+const W=tones.length*112+30,H=140;
 let s=`<svg viewBox="0 0 ${W} ${H}"${tones.length>8?` style="min-width:${tones.length*64}px"`:''} role="img" aria-label="Pitch contour: ${tones.map(t=>T[t][0]).join(', ')}">`;
 [['H',20],['M',70],['L',120]].forEach(([l,y])=>s+=`<line x1="26" x2="${W-4}" y1="${y}" y2="${y}" stroke="var(--ln)" stroke-dasharray="3 5"/><text x="4" y="${y+4}" fill="var(--mu)" font-size="11">${l}</text>`);
-tones.forEach((t,k)=>{const x0=40+k*112,p=T[t][3].map((v,i)=>[x0+i*21,20+(1-v)*100]);
-s+=`<g class="t-${t}" opacity="${sel==null||sel===k?1:.3}">`;
-if(cb)s+=`<text x="${p[2][0]-5}" y="${p[2][1]-10}" fill="var(--c)" font-size="14" font-weight="bold">${T[t][1]}</text>`;
-const da=cb?(t==='mid'?'':t==='low'?'4 2':t==='falling'?'8 4':t==='high'?'2 4':t==='rising'?'4 1 2 1':''):'';
-s+=`<path d="${smooth(p)}" fill="none" stroke="var(--c)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" ${da?`stroke-dasharray="${da}"`:''}/><circle cx="${p[4][0]}" cy="${p[4][1]}" r="6" fill="var(--c)"/></g>`});
-return s+'<canvas id="pitch-overlay"></canvas></svg>'}
-let audioCtx,analyser,micStream,animFrame;
-async function toggleMic(){
-if(audioCtx&&audioCtx.state==='running'){audioCtx.suspend();return toast('Mic off')}
-if(!audioCtx){
-audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
-micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-audioCtx.createMediaStreamSource(micStream).connect(analyser);
-drawPitch()}else audioCtx.resume();
-toast('Mic on - Realtime pitch active')
-}
-function drawPitch(){
-if(!analyser)return;
-animFrame=requestAnimationFrame(drawPitch);
-const buf=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(buf);
-let max=0;for(let i=0;i<buf.length;i++)if(Math.abs(buf[i])>max)max=Math.abs(buf[i]);
-if(max<0.05)return;
-let ac=0,l=-1;for(let i=1;i<buf.length;i++)if(buf[i-1]<0&&buf[i]>=0){if(l>-1)ac+=(i-l);l=i}
-if(!ac)return;const freq=audioCtx.sampleRate/(ac/l);
-const c=$('#pitch-overlay');if(!c)return;
-if(c.width!==c.clientWidth)c.width=c.clientWidth,c.height=c.clientHeight;
-const ctx=c.getContext('2d');
-const y=Math.max(20,Math.min(120,120-((freq-80)/160)*100));
-ctx.fillStyle='var(--tx)';ctx.beginPath();ctx.arc(c.width/2,y,4,0,2*Math.PI);ctx.fill();
-ctx.fillStyle='rgba(15,27,29,0.05)';ctx.fillRect(0,0,c.width,c.height);
-}
-function spk(t){
-if(!t||!('speechSynthesis' in window))return toast('Speech is not available in this browser');
-const syn=speechSynthesis,go=()=>{const vs=syn.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return toast('No Thai voice installed on this device');syn.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='th-TH';u.voice=vs.find(v=>/Narisa|Kanya|Google/.test(v.name))||vs[0];u.rate=parseFloat($('#speed').value||'0.85');syn.speak(u)};
+tones.forEach((t,k)=>{const x0=40+k*112,p=T[t][3].map((v,i)=>[x0+i*21,20+(1-v)*100]),top=Math.max(14,Math.min(...p.map(q=>q[1]))-8);
+s+=`<g class="t-${t}" opacity="${sel==null||sel===k?1:.3}"><path d="${smooth(p)}" fill="none" stroke="var(--c)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"${CB&&DA[t]?` stroke-dasharray="${DA[t]}"`:''}/><circle cx="${p[4][0]}" cy="${p[4][1]}" r="6" fill="var(--c)"/><text x="${x0+42}" y="${top}" text-anchor="middle" fill="var(--c)" font-size="15" font-weight="800">${T[t][1]}</text></g>`});
+return s+'</svg>'}
+function speakList(L){
+if(!L.length||!('speechSynthesis' in window))return toast('Speech is not available in this browser');
+const syn=speechSynthesis,go=()=>{const vs=syn.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return toast('No Thai voice installed on this device');syn.cancel();const vo=vs.find(x=>/Narisa|Kanya|Google/.test(x.name))||vs[0];L.forEach(t=>{const u=new SpeechSynthesisUtterance(t);u.lang='th-TH';u.voice=vo;u.rate=RATE;syn.speak(u)})};
 syn.getVoices().length?go():syn.addEventListener('voiceschanged',go,{once:true})}
+const spk=t=>{if(t)speakList([t])};
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2600)}
 const day=()=>Math.floor(Date.now()/864e5);
 const dk=()=>new Date().toLocaleDateString('en-CA');
@@ -315,7 +298,6 @@ save(r,touch){const id=nrm(r.input),h=this.get(),o=h.find(x=>x.id===id),e={id,ts
 const rest=h.filter(x=>x.id!==id);rest.push(e);rest.sort((a,b)=>b.ts-a.ts);this.set(rest.slice(0,500))}};
 const LX="ฉัน,I/me;ผม,I (male)/hair;ดิฉัน,I (female);เธอ,you/she;คุณ,you;เขา,he/she;เรา,we;พวกเรา,we/us;พวกเขา,they;มัน,it;ใคร,who;เพื่อน,friend;พ่อ,father;แม่,mother;พี่,older sibling;น้อง,younger sibling;ลูก,child/offspring;สามี,husband;ภรรยา,wife;แฟน,boyfriend/girlfriend;ครอบครัว,family;คน,person;ผู้ชาย,man;ผู้หญิง,woman;เด็ก,child;ครู,teacher;หมอ,doctor;นักเรียน,student;สวัสดี,hello/goodbye;ขอบคุณ,thank you;ขอโทษ,sorry/excuse me;ครับ,polite particle (male);ค่ะ,polite particle (female);คะ,polite question particle (female);นะ,softening particle;สิ,urging particle;ล่ะ,emphasis particle;เลย,at all/very/right away;ไม่เป็นไร,never mind;ลาก่อน,goodbye;ยินดี,glad;ใช่,yes/correct;ไม่,no/not;ไม่ใช่,is not;อะไร,what;ที่ไหน,where;เมื่อไหร่,when;ทำไม,why;อย่างไร,how;ยังไง,how;เท่าไหร่,how much;เท่าไร,how much;กี่,how many;ไหม,question particle;หรือ,or/question particle;หรือเปล่า,or not;เป็น,to be;อยู่,to be at/to stay;มี,to have;ไป,to go;มา,to come;กิน,to eat;ดื่ม,to drink;ดู,to watch/to look;ฟัง,to listen;พูด,to speak;อ่าน,to read;เขียน,to write;เรียน,to study;สอน,to teach;ทำ,to do/to make;ซื้อ,to buy;ขาย,to sell;ให้,to give/for;เอา,to take/to want;รัก,to love;ชอบ,to like;อยาก,to want;ต้อง,must/to need;รู้,to know;เข้าใจ,to understand;คิด,to think;นอน,to sleep;ตื่น,to wake up;เดิน,to walk;วิ่ง,to run;นั่ง,to sit;ยืน,to stand;เปิด,to open;ปิด,to close;ช่วย,to help;รอ,to wait;หา,to look for;เจอ,to meet/to find;ถาม,to ask;ตอบ,to answer;เล่น,to play;ทำงาน,to work;ร้องเพลง,to sing;หัวเราะ,to laugh;ร้องไห้,to cry;เรียก,to call;โทร,to phone;ส่ง,to send;ใช้,to use;จ่าย,to pay;เหนื่อย,tired;หิว,hungry;อิ่ม,full;ง่วง,sleepy;ป่วย,sick;อาบน้ำ,to bathe;ล้าง,to wash;ขับ,to drive;ขึ้น,to go up;ลง,to go down;กลับ,to return;ถึง,to arrive/until;ออก,to exit;เข้า,to enter;เห็น,to see;ลอง,to try;จำ,to remember;ลืม,to forget;หยุด,to stop;เริ่ม,to start;จบ,to end;แต่งงาน,to marry;เกิด,to be born;ตาย,to die;ชนะ,to win;แพ้,to lose;ได้,can/to get;ได้ยิน,to hear;เรียนรู้,to learn;เที่ยว,to go out/to travel;พัก,to rest;ชวน,to invite;แนะนำ,to recommend/to introduce;ดี,good;เลว,bad;ไม่ดี,not good;ใหญ่,big;เล็ก,small;ใหม่,new;เก่า,old (things);แก่,old (people);ร้อน,hot;เย็น,cool/evening;หนาว,cold;อร่อย,delicious;เผ็ด,spicy;หวาน,sweet;เปรี้ยว,sour;เค็ม,salty;ขม,bitter;สวย,beautiful;หล่อ,handsome;น่ารัก,cute;แพง,expensive;ถูก,cheap/correct;ง่าย,easy;ยาก,difficult;เร็ว,fast;ช้า,slow;ไกล,far;ใกล้,near;สูง,tall/high;ต่ำ,low;ยาว,long;สั้น,short;หนัก,heavy;เบา,light;มาก,much/very;น้อย,little/few;สนุก,fun;เบื่อ,bored;สบาย,comfortable;สบายดี,well/fine;ดีใจ,happy;เสียใจ,sad/sorry;กลัว,afraid;โกรธ,angry;สะอาด,clean;สกปรก,dirty;เงียบ,quiet;ดัง,loud;อ้วน,fat;ผอม,thin;ขาว,white;ดำ,black;แดง,red;เขียว,green;เหลือง,yellow;ฟ้า,sky blue;น้ำเงิน,blue;ชมพู,pink;ส้ม,orange;ม่วง,purple;ตรง,straight;น้ำ,water;ข้าว,rice;อาหาร,food;กาแฟ,coffee;ชา,tea;นม,milk;ผลไม้,fruit;ผัก,vegetable;เนื้อ,meat;ไก่,chicken;หมู,pork/pig;ปลา,fish;ไข่,egg;ขนม,snack/dessert;เบียร์,beer;บ้าน,house/home;ห้อง,room;ห้องน้ำ,bathroom;ห้องนอน,bedroom;โรงเรียน,school;โรงพยาบาล,hospital;ตลาด,market;ร้าน,shop;ร้านอาหาร,restaurant;โรงแรม,hotel;สนามบิน,airport;สถานี,station;ถนน,road;เมือง,city;ประเทศ,country;ทะเล,sea;ภูเขา,mountain;แม่น้ำ,river;วัด,temple;รถ,car/vehicle;รถไฟ,train;เครื่องบิน,airplane;เรือ,boat;จักรยาน,bicycle;มอเตอร์ไซค์,motorcycle;ตั๋ว,ticket;เงิน,money;ราคา,price;หนังสือ,book;โทรศัพท์,telephone;คอมพิวเตอร์,computer;ปากกา,pen;โต๊ะ,table;เก้าอี้,chair;ประตู,door;หน้าต่าง,window;เตียง,bed;เสื้อ,shirt;กางเกง,trousers;รองเท้า,shoes;กระเป๋า,bag;หมวก,hat;ฝน,rain;ลม,wind;แดด,sunshine;อากาศ,weather/air;ดวงอาทิตย์,sun;พระจันทร์,moon;ดาว,star;ต้นไม้,tree;ดอกไม้,flower;หมา,dog;แมว,cat;ช้าง,elephant;ม้า,horse;วัว,cow;นก,bird;เสือ,tiger;ลิง,monkey;งู,snake;หนู,mouse;กบ,frog;ตา,eye;หู,ear;จมูก,nose;ปาก,mouth;มือ,hand;เท้า,foot;ขา,leg;หัว,head;หน้า,face/front;ใจ,heart/mind;หัวใจ,heart;ร่างกาย,body;สุขภาพ,health;งาน,work/job;ชีวิต,life;เวลา,time;วัน,day;คืน,night;เช้า,morning;บ่าย,afternoon;สัปดาห์,week;เดือน,month;ปี,year;วันนี้,today;พรุ่งนี้,tomorrow;เมื่อวาน,yesterday;ตอนนี้,now;เสมอ,always;บางครั้ง,sometimes;ชั่วโมง,hour;นาที,minute;ภาษา,language;ภาษาไทย,Thai language;ภาษาอังกฤษ,English language;ไทย,Thai;ประเทศไทย,Thailand;กรุงเทพ,Bangkok;คำ,word;ประโยค,sentence;ปัญหา,problem;ความรัก,love;ความสุข,happiness;ความฝัน,dream;สิ่ง,thing;เรื่อง,story/matter;ข่าว,news;รูป,picture;เพลง,song;หนัง,movie/skin;ยา,medicine;ตำรวจ,police;ทหาร,soldier;มหาวิทยาลัย,university;ศูนย์,zero;หนึ่ง,one;สอง,two;สาม,three;สี่,four;ห้า,five;หก,six;เจ็ด,seven;แปด,eight;เก้า,nine;สิบ,ten;ยี่สิบ,twenty;ร้อย,hundred;พัน,thousand;หมื่น,ten thousand;แสน,hundred thousand;ล้าน,million;และ,and;แต่,but;เพราะ,because;ถ้า,if;ก็,also/then;ที่,that/which/at;ของ,of/belongings;กับ,with;จาก,from;ใน,in;บน,on top of;ใต้,under;ข้าง,beside;หลัง,behind/after;ก่อน,before;ด้วย,with/also;เพื่อ,for;แล้ว,already/then;กำลัง,in the middle of (-ing);จะ,will;ยัง,still/yet;เคย,ever/used to;ไม่มี,not have;นี้,this;นั้น,that;นี่,this;นั่น,that;โน่น,over there;ทุก,every;ทั้งหมด,all;บาง,some;อีก,more/again;ที่สุด,most;กว่า,more than;เกินไป,too much;จริง,real/true;จริงๆ,really;แค่,only;ด้วยกัน,together;เอง,oneself;ครั้ง,time (occurrence);ตัว,classifier for animals;อัน,classifier for things;เล่ม,classifier for books;แก้ว,glass;จาน,plate;ชาม,bowl;ช้อน,spoon;ส้อม,fork;ขวด,bottle";
 const WS="กา,crow;กบ,frog;ไก่,chicken;เก้า,nine;โต๊ะ,table;ตั๋ว,ticket;ขา,leg;สิบ,ten;สี่,four;ห้า,five;มา,come;รัก,love;พูด,speak;พี่,older sibling;ม้า,horse;คน,person;กิน,eat;ไป,go;ใจ,heart;ข้าว,rice;น้ำ,water;หมา,dog;หวาน,sweet;บ้าน,house;เด็ก,child;ดี,good;ใหม่,new;ร้อน,hot;เย็น,cool;ไทย,Thai;แมว,cat;ปลา,fish;เสือ,tiger;หนาว,cold;ถูก,cheap;แพง,expensive;สวย,pretty;ลูก,offspring;เขา,he or she;เรา,we;ครู,teacher;ตรง,straight;อยู่,stay;ยาก,difficult;ง่าย,easy";
-const MP=[['คา','ข่า','ค่า','ค้า','ขา'],['มา','หม่า','ม่า','ม้า','หมา'],['นา','หน่า','น่า','น้า','หนา'],['ปา','ป่า','ป้า','ป๊า','ป๋า'],['ไกล','ไกว','ใกล้','ไกด์','ไก๋']];
 const LEX={};
 LX.split(';').forEach(r=>{const i=r.indexOf(','),p=r.slice(i+1).split('/');LEX[r.slice(0,i)]={m:p[0],a:p.slice(1)}});
 WS.split(';').forEach(r=>{const[w,m]=r.split(',');if(!LEX[w])LEX[w]={m,a:[]}});
@@ -335,16 +317,17 @@ async function gt(q,sl,tl,x){
 const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t${x||''}&q=${encodeURIComponent(q)}`,{signal:AbortSignal.timeout?AbortSignal.timeout(9000):undefined});
 if(!r.ok)throw new Error('http');return r.json()}
 const OD={};
-async function odAvail(sl,tl){if(!('Translator' in self))return'unsupported';try{return await Translator.availability({sourceLanguage:sl,targetLanguage:tl})}catch{return'unavailable'}}
+const tmo=(p,ms,d)=>Promise.race([Promise.resolve(p),new Promise(r=>setTimeout(()=>r(d),ms))]);
+async function odAvail(sl,tl){if(!('Translator' in self))return'unsupported';try{return await tmo(Translator.availability({sourceLanguage:sl,targetLanguage:tl}),1500,'unavailable')}catch{return'unavailable'}}
 async function odGet(sl,tl,mk){
 if(!('Translator' in self))return null;
 const k=sl+'|'+tl;if(OD[k])return OD[k];
-try{const a=await Translator.availability({sourceLanguage:sl,targetLanguage:tl});
+try{const a=await tmo(Translator.availability({sourceLanguage:sl,targetLanguage:tl}),1500,'unavailable');
 if(a==='available'||(mk&&(a==='downloadable'||a==='downloading'))){
 OD[k]=await Translator.create({sourceLanguage:sl,targetLanguage:tl,monitor(m){m.addEventListener('downloadprogress',e=>toast(`Downloading ${sl} to ${tl}: ${Math.round(e.loaded*100)}%`))}});return OD[k]}}catch{}
 return null}
 async function detect(q){
-try{if('LanguageDetector' in self&&(await LanguageDetector.availability())==='available'){const d=OD.det||(OD.det=await LanguageDetector.create()),r=await d.detect(q);if(r&&r[0]&&r[0].detectedLanguage&&r[0].detectedLanguage!=='und')return r[0].detectedLanguage}}catch{}
+try{if('LanguageDetector' in self&&(await tmo(LanguageDetector.availability(),1500,''))==='available'){const d=OD.det||(OD.det=await tmo(LanguageDetector.create(),4000,null)),r=d&&await tmo(d.detect(q),3000,null);if(r&&r[0]&&r[0].detectedLanguage&&r[0].detectedLanguage!=='und')return r[0].detectedLanguage}}catch{}
 return /^[\x00-ɏ\s\p{P}\p{N}]+$/u.test(q)?'en':null}
 const remember=async(key,v)=>{await idb.put('tr',key,{...v,ts:Date.now()});return v};
 function offlineWords(q){
@@ -359,7 +342,7 @@ if(pb)return{th:pb.th,src:pb.src,via:'phrasebook'};
 const sv=await idb.get('tr',key);
 if(sv&&sv.th)return{th:sv.th,src:sv.src,via:'saved'};
 const sl=await detect(q);
-if(sl){const t=await odGet(sl,'th');if(t){try{const th=(await t.translate(q)).trim();if(th)return await remember(key,{th,src:sl,via:'device'})}catch{}}}
+if(sl){const t=await odGet(sl,'th');if(t){try{const th=(await tmo(t.translate(q),8000,'')).trim();if(th)return await remember(key,{th,src:sl,via:'device'})}catch{}}}
 if(online()){try{const d=await gt(q,'auto','th'),th=d[0].map(x=>x[0]||'').join('').trim();if(th)return await remember(key,{th,src:d[2]||sl||'auto',via:'online'})}catch{}}
 return offlineWords(q)}
 async function backEn(th){
@@ -367,7 +350,7 @@ if(PBR[th])return PBR[th];
 const key='th>en|'+th,sv=await idb.get('tr',key);
 if(sv&&sv.en)return sv.en;
 const t=await odGet('th','en');
-if(t){try{const en=(await t.translate(th)).trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
+if(t){try{const en=(await tmo(t.translate(th),8000,'')).trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
 if(online()){try{const d=await gt(th,'th','en'),en=d[0].map(x=>x[0]||'').join('').trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
 return''}
 async function glossOf(w){
@@ -380,13 +363,15 @@ if(m&&m.toLowerCase()!==w){const a=[];let p='';
 if(d[1]){p=(d[1][0]&&d[1][0][0])||'';d[1].forEach(b=>(b[1]||[]).forEach(x=>{if(x.toLowerCase()!==m.toLowerCase()&&a.length<4&&!a.includes(x))a.push(x)}))}
 const g={m,a,p};idb.put('gl',w,g);return g}}catch{}}
 const t=await odGet('th','en');
-if(t){try{const m=(await t.translate(w)).trim();if(m&&m.toLowerCase()!==w){const g={m,a:[],p:''};idb.put('gl',w,g);return g}}catch{}}
+if(t){try{const m=(await tmo(t.translate(w),8000,'')).trim();if(m&&m.toLowerCase()!==w){const g={m,a:[],p:''};idb.put('gl',w,g);return g}}catch{}}
 return null}
 const FU='https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Sarabun:wght@400;700;800&family=Kanit:wght@400;600&family=Prompt:wght@400;600&family=Mitr:wght@400;500&family=Itim&display=swap';
 const fonts={
-async apply(){const m=await idb.get('meta','fontcss');if(!m)return false;let css=m.css;
-for(const u of m.urls){const r=await idb.get('fonts',u);if(!r||!r.b)return false;css=css.split(u).join(URL.createObjectURL(r.b))}
-const of=$('#ff');if(of)of.remove();
+urls:[],
+async apply(){const m=await idb.get('meta','fontcss');if(!m)return false;let css=m.css;const made=[];
+for(const u of m.urls){const r=await idb.get('fonts',u);if(!r||!r.b){made.forEach(x=>URL.revokeObjectURL(x));return false}const o=URL.createObjectURL(r.b);made.push(o);css=css.split(u).join(o)}
+const old=$('#ff');if(old)old.remove();
+this.urls.forEach(x=>URL.revokeObjectURL(x));this.urls=made;
 const s=document.createElement('style');s.id='ff';s.textContent=css;document.head.appendChild(s);return true},
 link(){if($('#ffl'))return;const l=document.createElement('link');l.id='ffl';l.rel='stylesheet';l.href=FU;document.head.appendChild(l)},
 async download(){
@@ -400,10 +385,10 @@ if(done<urls.length)throw new Error('partial');
 await idb.put('meta','fontcss',{css:blocks.join('\n'),urls,size,ts:Date.now()});
 return size}};
 let sel=0,flat=[],R=null,aSeq=0,aT,recT;
-const wordsOf=toks=>{let k=0;const seen=new Set(),ws=[];toks.forEach(t=>{if(!t.sy)return;const i=k;k+=t.sy.length;if(seen.has(t.w))return;seen.add(t.w);ws.push({w:t.w,sy:t.sy,i})});return ws};
+const wordsOf=toks=>{let k=0;const seen=new Set(),ws=[];toks.forEach(t=>{if(!t.sy)return;const i=k,key=t.o||t.w;k+=t.sy.length;if(seen.has(key))return;seen.add(key);ws.push({w:key,rd:t.o?t.w:'',sy:t.sy,i})});return ws};
 const enHtml=r=>{if(r.src==='en')return'';if(r.en)return`English: ${esc(r.en)}`;const g=r.words.filter(x=>x.g).map(x=>x.g.m);return g.length&&r.words.every(x=>x.g!==undefined)?`Word by word: ${esc(g.join(' · '))}`:''};
 const wc=x=>{const g=x.g,on=sel>=x.i&&sel<x.i+x.sy.length;
-return`<div class="wc${on?' on':''}"><button class="wsel" data-a="wpick" data-v="${esc(x.w)}" aria-pressed="${on}"><div class="th" style="font-size:1.9rem;font-weight:800;line-height:1.2">${esc(x.w)}</div><div style="font-weight:600">${esc(x.sy.map(s=>s.rom).join('-'))}</div><div class="wtones">${x.sy.map(s=>`<span class="tg t-${s.tone}">${T[s.tone][0]} ${T[s.tone][1]}</span>`).join('')}</div></button><div class="wm">${g?esc(g.m):'…'}</div>${g&&g.a&&g.a.length?`<div class="wa">${g.a.map(esc).join(' · ')}</div>`:''}${g&&g.p?`<div class="wa">${esc(g.p)}</div>`:''}<div class="row"><button class="btn ic" data-a="wspk" data-v="${esc(x.w)}" aria-label="Play ${esc(x.w)}">&#9835;</button><button class="btn sm" data-a="wadd" data-v="${esc(x.w)}">Add to review</button></div></div>`};
+return`<div class="wc${on?' on':''}"><button class="wsel" data-a="wpick" data-v="${esc(x.w)}" aria-pressed="${on}"><div class="th" style="font-size:1.9rem;font-weight:800;line-height:1.2">${esc(x.w)}</div><div style="font-weight:600">${esc(x.sy.map(fr).join('-'))}</div>${x.rd?`<div class="wa">Read as <span class="th">${esc(x.rd)}</span>, silent letters skipped</div>`:''}<div class="wtones">${x.sy.map(s=>`<span class="tg t-${s.tone}">${T[s.tone][0]} ${T[s.tone][1]}</span>`).join('')}</div></button><div class="wm">${g?esc(g.m):'…'}</div>${g&&g.a&&g.a.length?`<div class="wa">${g.a.map(esc).join(' · ')}</div>`:''}${g&&g.p?`<div class="wa">${esc(g.p)}</div>`:''}<div class="row"><button class="btn ic" data-a="wspk" data-v="${esc(x.w)}" aria-label="Play ${esc(x.w)}">&#9835;</button>${x.sy.length>1?`<button class="btn sm" data-a="wslow" data-v="${esc(x.w)}">Slow</button>`:''}<button class="btn sm" data-a="wadd" data-v="${esc(x.w)}">Add to review</button></div></div>`};
 function renderWords(){
 const el=$('#a-words');if(!el||!R||!R.words)return;
 const ok=R.words.filter(x=>x.g!==false),no=R.words.filter(x=>x.g===false);
@@ -414,20 +399,68 @@ if(!R){out.innerHTML='<div class="empty card">Type anything above. Thai is analy
 if(R.err){out.innerHTML=`<div class="empty card">${R.err===2?'No Thai letters found in the result.':`Could not translate this text${online()?'':' while offline'}. Connect once, or download the on-device translator in the Offline tab. Words and phrases already saved, the built-in phrasebook and single English words work without a connection.`}</div>`;return}
 const r=R,fl=r.flat,s=fl[sel]||fl[0];
 let k=0;
-const strip=r.toks.map(t=>t.x?`<span class="th" style="align-self:center">${esc(t.x)}</span>`:`<div class="wd">${t.sy.map(y=>{const i=k++;return`<button class="sy t-${y.tone}" data-a="pick" data-v="${i}" aria-pressed="${i===sel}"><div class="g">${esc(y.txt)}</div><div class="r">${esc(y.rom)}</div><div class="n">${T[y.tone][0]} ${T[y.tone][1]}</div></button>`}).join('')}</div>`).join('');
-const rom=r.toks.map(t=>t.x||t.sy.map(y=>y.rom).join('-')).join(' ');
-out.innerHTML=`<div class="card"><div class="row" style="margin-bottom:10px"><span class="pill">${r.src==='th'?'Thai':esc(langName(r.src))+' → Thai'}</span><span class="pill">${esc(VIA[r.via]||r.via)}</span></div>${r.src!=='th'?`<div class="wa" style="margin-bottom:6px">${esc(r.input)}</div>`:''}<div class="thbig th">${esc(r.th)}</div><div style="font-weight:600;margin-top:4px">${esc(rom)}</div><div class="wa" id="a-en" style="margin-top:6px">${enHtml(r)}</div><div class="row" style="margin-top:12px"><button class="btn ic" data-a="spkall" aria-label="Play sentence">&#9835;</button><button class="btn sm" data-a="cpth">Copy Thai</button><button class="btn sm" data-a="copyrom">Copy romanization</button><button class="btn sm" data-a="addall">Add all to review</button></div></div>
+const strip=r.toks.map(t=>t.x?`<span class="th" style="align-self:center">${esc(t.x)}</span>`:`<div class="wd">${t.sy.map(y=>{const i=k++;return`<button class="sy t-${y.tone}" data-a="pick" data-v="${i}" aria-pressed="${i===sel}"><div class="g">${esc(y.txt)}</div><div class="r">${esc(fr(y))}</div><div class="n">${T[y.tone][0]} ${T[y.tone][1]}</div></button>`}).join('')}</div>`).join('');
+const rom=r.toks.map(t=>t.x||t.sy.map(fr).join('-')).join(' ');
+out.innerHTML=`<div class="card"><div class="row" style="margin-bottom:10px"><span class="pill">${r.src==='th'?'Thai':esc(langName(r.src))+' → Thai'}</span><span class="pill">${esc(VIA[r.via]||r.via)}</span></div>${r.src!=='th'?`<div class="wa" style="margin-bottom:6px">${esc(r.input)}</div>`:''}<div class="thbig th">${esc(r.th)}</div><div style="font-weight:600;margin-top:4px">${esc(rom)}</div><div class="wa" id="a-en" style="margin-top:6px">${enHtml(r)}</div><div class="row" style="margin-top:12px"><button class="btn ic" data-a="spkall" aria-label="Play sentence">&#9835;</button><button class="btn sm" data-a="spkslow">Play by syllable</button><button class="btn sm" data-a="cpth">Copy Thai</button><button class="btn sm" data-a="copyrom">Copy romanization</button><button class="btn sm" data-a="addall">Add all to review</button></div></div>
 <h3 style="margin:20px 0 10px">Word breakdown</h3><div id="a-words"></div>
-<h3 style="margin:20px 0 10px">Tone contour<button class="btn sm" style="float:right;padding:2px 8px;font-size:0.75rem" onclick="toggleMic()">🎤 Mic</button></h3><div class="card hero">${contour(fl.map(x=>x.tone),sel)}</div>
+<h3 style="margin:20px 0 10px">Tone contour</h3><div class="card hero">${contour(fl.map(x=>x.tone),sel)}</div>
 <div class="syls">${strip}</div>
 <div class="card t-${s.tone}"><div class="row" style="justify-content:space-between"><div class="th" style="font-size:2.2rem;font-weight:800">${esc(s.txt)}</div><div class="row"><button class="btn ic" data-a="spkone" aria-label="Play syllable">&#9835;</button></div></div>
 <dl class="tr" style="margin-top:12px"><dt>Initial</dt><dd><b class="th">${esc(s.init)}</b> · ${s.cl} class${s.why?`<br><span style="color:var(--mu)">${esc(s.why)}</span>`:''}</dd>
 <dt>Vowel</dt><dd>${esc(s.vr)} · ${s.len?'long':'short'}${s.lead?` (written with ${s.lead})`:''}</dd>
 <dt>Ending</dt><dd>${s.fin?`<b class="th">${s.fin}</b> → ${s.fm||'silent'}`:'none'} · ${s.live?'live':'dead'} syllable</dd>
-<dt>Tone mark</dt><dd>${s.mk?`${MK[s.mk]} <span class="th">${s.mk}</span>`:'none'}</dd></dl>
+<dt>Tone mark</dt><dd>${s.mk?`${MK[s.mk]} <span class="th">${s.mk}</span>`:'none'}</dd>
+<dt>Reading</dt><dd>${esc(fr(s))}</dd></dl>
 <div class="res">${T[s.tone][0]} ${T[s.tone][1]} · <span class="th">${T[s.tone][2]}</span></div>
-<div style="color:var(--mu)">${esc(ruleText(s.cl,s.mk,s.live,s.len,s.tone))}</div></div>`;
+<div style="color:var(--mu)">${esc(s.irr?s.why:ruleText(s.cl,s.mk,s.live,s.len,s.tone))}</div>
+<div class="row" style="margin-top:12px"><button class="btn sm${mic.on?' p':''}" data-a="rec">${mic.on?'Stop recording':'Record my voice'}</button><span class="wa">Say this syllable and compare your pitch with the target tone</span></div>${recHtml(s)}</div>`;
 renderWords()}
+const mic={on:false,last:null,stop:null};
+function acPitch(buf,sr){
+let e=0;for(let i=0;i<buf.length;i++)e+=buf[i]*buf[i];
+if(Math.sqrt(e/buf.length)<.012)return 0;
+const lo=Math.floor(sr/450),hi=Math.min(Math.floor(sr/70),buf.length-1025),W=1024,r=new Float32Array(hi+2);let mx=0;
+for(let L=lo;L<=hi;L++){let s=0,e1=0,e2=0;for(let i=0;i<W;i++){const a=buf[i],b=buf[i+L];s+=a*b;e1+=a*a;e2+=b*b}r[L]=s/Math.sqrt(e1*e2+1e-9);if(r[L]>mx)mx=r[L]}
+if(mx<.8)return 0;
+for(let L=lo+1;L<hi;L++)if(r[L]>=.9*mx&&r[L]>=r[L-1]&&r[L]>=r[L+1])return sr/L;
+return 0}
+function pitchCurve(p){
+const a=p.findIndex(f=>f>0);let b=-1;p.forEach((f,i)=>{if(f>0)b=i});
+if(a<0||b-a<5)return null;
+const seg=p.slice(a,b+1),fl=seg.map((f,i)=>{if(f>0)return f;let l=i-1,r=i+1;while(l>=0&&!(seg[l]>0))l--;while(r<seg.length&&!(seg[r]>0))r++;return seg[l]+(seg[r]-seg[l])*(i-l)/(r-l)});
+const md=fl.map((f,i)=>[fl[i-1]||f,f,fl[i+1]||f].sort((x,y)=>x-y)[1]),st=md.map(f=>12*Math.log2(f/100)),out=[];
+for(let i=0;i<20;i++){const q=i/19*(st.length-1),i0=Math.floor(q),i1=Math.min(st.length-1,i0+1);out.push(st[i0]+(st[i1]-st[i0])*(q-i0))}
+return out}
+function matchScore(st,tone){
+const c=T[tone][3],mn=Math.min(...st),mx=Math.max(...st),sp=mx-mn;
+if(tone==='mid')return{sc:Math.round(Math.max(0,100-Math.max(0,sp-2)*14)),mn,mx,sp};
+const tg=st.map((_,i)=>{const q=i/19*4,i0=Math.floor(q),i1=Math.min(4,i0+1);return c[i0]+(c[i1]-c[i0])*(q-i0)});
+const ma=st.reduce((x,y)=>x+y,0)/20,mb=tg.reduce((x,y)=>x+y,0)/20;
+let n=0,da=0,db=0;st.forEach((x,i)=>{n+=(x-ma)*(tg[i]-mb);da+=(x-ma)**2;db+=(tg[i]-mb)**2});
+const r=n/Math.sqrt(da*db+1e-9);
+return{sc:Math.round(Math.max(0,r)*100*(sp<2?.5:1)),mn,mx,sp}}
+function recHtml(s){
+const m=mic.last;if(!m||m.k!==sel||m.txt!==s.txt)return'';
+if(!m.st)return'<div class="wa" style="margin-top:10px">No clear voice detected. Speak closer to the microphone and try again.</div>';
+const c=T[s.tone][3],lo=Math.min(...c),hi=Math.max(...c),sc=m.m;
+const vs=hi-lo<.05?m.st.map(x=>.5+Math.max(-.5,Math.min(.5,(x-(sc.mn+sc.mx)/2)/12))):m.st.map(x=>sc.sp>0?lo+(x-sc.mn)/sc.sp*(hi-lo):.5);
+const pts=vs.map((v,i)=>`${i?'L':'M'}${40+i/19*84} ${20+(1-v)*100}`).join('');
+const svg=contour([s.tone]).replace('</svg>',`<path d="${pts}" fill="none" stroke="var(--tx)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+const msg=sc.sc>=75?'Great match':sc.sc>=50?'Close, make the pitch movement clearer':'Try again and follow the target shape';
+return`<div class="row" style="margin-top:12px;align-items:flex-start"><div style="width:200px;max-width:100%">${svg}</div><div><b style="font-size:1.4rem">${sc.sc}% match</b><div class="wa">${msg}. The colored line is the target tone, the plain line is your voice.</div></div></div>`}
+async function recStart(){
+if(mic.on){mic.stop&&mic.stop();return}
+const s=flat[sel];if(!s)return;
+if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return toast('Microphone needs https or localhost');
+let stream;
+try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})}catch{return toast('Microphone permission was denied')}
+const ctx=new(window.AudioContext||window.webkitAudioContext)(),an=ctx.createAnalyser();an.fftSize=2048;
+ctx.createMediaStreamSource(stream).connect(an);
+const buf=new Float32Array(an.fftSize),pts=[],t0=performance.now(),k=sel,tone=s.tone,txt=s.txt;
+mic.on=true;view();
+const fin=()=>{if(!mic.on)return;mic.on=false;clearInterval(iv);stream.getTracks().forEach(t=>t.stop());ctx.close();const st=pitchCurve(pts);mic.last={k,txt,st,m:st?matchScore(st,tone):null};view()};
+const iv=setInterval(()=>{an.getFloatTimeDomainData(buf);pts.push(acPitch(buf,ctx.sampleRate));if(performance.now()-t0>2600)fin()},30);
+mic.stop=fin}
 function updEn(){const e=$('#a-en');if(e&&R&&R.words)e.innerHTML=enHtml(R)}
 async function build(input,res,my){
 const toks=parse(res.th),fl=toks.flatMap(t=>t.sy||[]);
@@ -466,7 +499,7 @@ $('#a-ex2').innerHTML=`<span class="wa" style="min-width:90px">Other languages</
 const h=hist.get().slice(0,6);
 $('#a-rc').innerHTML=h.length?`<span class="wa" style="min-width:90px">Recent</span>`+h.map(x=>`<button class="btn" data-a="hopen" data-v="${esc(x.id)}">${esc(x.input.length>24?x.input.slice(0,24)+'…':x.input)}</button>`).join(''):''}
 async function warm(){
-const ws=new Set();hist.get().forEach(e=>parse(e.th).forEach(t=>t.sy&&ws.add(t.w)));
+const ws=new Set();hist.get().forEach(e=>parse(e.th).forEach(t=>t.sy&&ws.add(t.o||t.w)));
 const L=[...ws];let n=0;
 await pool(L,4,async w=>{await glossOf(w);n++;if(n%5===0)toast(`Saving meanings ${n}/${L.length}`)});
 return L.length}
@@ -485,7 +518,7 @@ const live=CS.ty==='1',len=+CS.ln,t=toneOf(CS.cl,mk,live,len);
 const key=mk?CS.cl+mk:CS.cl+'||'+(live?1:0)+(CS.cl==='low'&&!live?'|'+len:''),ex=CEX[key];
 $('#c-res').innerHTML=`<div class="t-${t}"><div class="res" style="margin:0">${T[t][0]} ${T[t][1]} · <span class="th">${T[t][2]}</span></div><div style="color:var(--mu);margin:6px 0 12px">${esc(ruleText(CS.cl,mk,live,len,t))}</div>${contour([t])}${ex?`<div class="row" style="margin-top:12px"><span class="th" style="font-size:2.4rem;font-weight:800">${ex[0]}</span><span style="color:var(--mu)">${ex[1]}</span><button class="btn ic" data-a="spkw" data-v="${ex[0]}" aria-label="Play">&#9835;</button><button class="btn sm" data-a="analyzew" data-v="${ex[0]}">Analyze</button></div>`:''}</div>`}
 let rTab='con',rQ='';
-const RT=[['con','Consonants'],['vow','Vowels'],['mat','Tone matrix'],['rul','Rules']];
+const RT=[['con','Consonants'],['vow','Vowels'],['mat','Tone matrix'],['mp','Minimal pairs'],['rul','Rules']];
 function runRef(){
 $('#r-seg').innerHTML=RT.map(([k,l])=>`<button role="tab" aria-selected="${k===rTab}" data-a="rtab" data-v="${k}">${l}</button>`).join('');
 let h='';
@@ -502,22 +535,25 @@ const cols=[['Live',0,'',1,0],['Dead short',0,'',0,0],['Dead long',0,'',0,1],['E
 h=`<div class="card sc"><table><thead><tr><th class="l">Class</th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${['mid','high','low'].map(cl=>`<tr><td class="l cut cl-${cl}">${cl}</td>${cols.map(c=>{if(c[2]&&'๊๋'.includes(c[2])&&cl!=='mid')return'<td>—</td>';if(!c[2]&&cl!=='low'&&c[4])return'<td>—</td>';const t=toneOf(cl,c[2],!!c[3],c[4]);return`<td class="t-${t} cut">${T[t][0]} ${T[t][1]}</td>`}).join('')}</tr>`).join('')}</tbody></table></div><p class="sub" style="margin-top:12px">Dead short and dead long only differ for low class. Tri and Chattawa appear almost only on mid-class letters.</p><div class="grid" style="margin-top:12px">${TK.map(t=>`<div class="card t-${t}"><b class="cut">${T[t][0]} ${T[t][1]} <span class="th">${T[t][2]}</span></b>${contour([t])}</div>`).join('')}</div>`}
 if(rTab==='rul'){
 h=[['t-mid','Mid class mirrors the marks','Ek gives low, Tho gives falling, Tri gives high, Chattawa gives rising. No surprises.'],['t-falling','Low class jumps up','Ek gives falling and Tho gives high, one step above what mid class does.'],['t-high','Dead low-class syllables','Short vowel gives high, long vowel gives falling. Every other dead syllable is low.'],['t-rising','High class live syllables','No mark and a live ending gives rising. Think of หมา (dog) and ขา (leg).'],['t-low','Leading ห','ห before ม น ง ว ล ย ร ญ is silent and lifts the syllable to high class: หมา, หนาว, หวาน.'],['t-mid','Leading อ','อ before ย is silent and makes it mid class. Only four words: อยู่ อย่า อยาก อย่าง.'],['t-high','Live or dead','Live means a long vowel, ำ ไ ใ เา, or an ending of น ม ง ย ว. Dead means a short vowel alone or an ending of ก ด บ.']].map(r=>`<div class="rule ${r[0]}"><b>${r[1]}</b><br>${r[2]}</div>`).join('')}
+if(rTab==='mp'){
+h='<p class="sub">Same consonant and vowel, different tone. Only the pitch changes the meaning. Tap a word to hear it.</p>'+MP.map((g,gi)=>`<div class="card" style="margin-bottom:12px"><div class="row" style="justify-content:space-between;margin-bottom:10px"><b class="th" style="font-size:1.2rem">${g.map(x=>esc(x.w)).join(' · ')}</b><button class="btn sm" data-a="mpall" data-v="${gi}">Play all</button></div><div class="grid">${g.map(x=>`<button class="tile t-${x.t}" data-a="spkw" data-v="${esc(x.w)}"><span class="g">${esc(x.w)}</span><span><b>${esc(fr(x.s))}</b><small>${T[x.t][0]} ${T[x.t][1]} · ${esc(x.m)}</small></span></button>`).join('')}</div></div>`).join('')}
 $('#r-body').innerHTML=h}
-const WORDS=WS.split(';').map(r=>{const[w,m]=r.split(',');const s=parse(w)[0].sy[0];return{w,m,t:s.tone,rom:s.rom,why:ruleText(s.cl,s.mk,s.live,s.len,s.tone)}});
-const P={mode:'tone',cur:null,ans:true,sc:0,tot:0,st:0,best:store.get('ttm.best',0),mpList:[]};
-const PM=[['tone','Read the tone'],['listen','Listen'],['class','Letter class'],['pairs','Minimal Pairs']];
+const WORDS=WS.split(';').map(r=>{const[w,m]=r.split(',');const s=parse(w)[0].sy[0];return{w,m,t:s.tone,s,why:ruleText(s.cl,s.mk,s.live,s.len,s.tone)}});
+const MPS="คา,to be stuck;ข่า,galangal;ค่า,value;ค้า,to trade;ขา,leg|เสือ,tiger;เสื่อ,mat;เสื้อ,shirt|ไหม,silk;ใหม่,new;ไม่,not;ไม้,wood|ใกล้,near;ไกล,far|ขาว,white;ข่าว,news;ข้าว,rice|หมา,dog;ม้า,horse;มา,come";
+const MP=MPS.split('|').map(g=>g.split(';').map(x=>{const[w,m]=x.split(','),s=parse(w)[0].sy[0];return{w,m,t:s.tone,s}}));
+const P={mode:'tone',cur:null,ans:true,sc:0,tot:0,st:0,best:store.get('ttm.best',0)};
+const PM=[['tone','Read the tone'],['listen','Listen'],['pairs','Minimal pairs'],['class','Letter class']];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function pStats(){$('#p-stats').innerHTML=`<span>Score <b>${P.sc}/${P.tot}</b></span><span>Streak <b>${P.st}</b></span><span>Best <b>${P.best}</b></span>`}
 function pNext(){
 P.ans=false;$('#p-fb').textContent='';$('#p-next').hidden=true;
-if(P.mode==='class'){let c;do c=pick(CONS);while(P.cur&&c.c===P.cur.c);P.cur=c;$('#p-q').textContent=c.c;$('#p-q').className='big th';
+if(P.mode==='pairs'){let g,w;do{g=pick(MP);w=pick(g)}while(P.cur&&P.cur.w===w.w);
+P.cur={w:w.w,m:w.m,t:w.t,s:w.s,why:ruleText(w.s.cl,w.s.mk,w.s.live,w.s.len,w.s.tone),set:g};
+$('#p-q').textContent='?';$('#p-q').className='big th';
+$('#p-opts').innerHTML=g.map((x,i)=>`<button class="opt" data-a="pans" data-v="${esc(x.w)}"><kbd>${i+1}</kbd><span class="th" style="font-size:1.6rem">${esc(x.w)}</span></button>`).join('');
+spk(w.w)}
+else if(P.mode==='class'){let c;do c=pick(CONS);while(P.cur&&c.c===P.cur.c);P.cur=c;$('#p-q').textContent=c.c;$('#p-q').className='big th';
 $('#p-opts').innerHTML=['mid','high','low'].map((k,i)=>`<button class="opt cl-${k}" data-a="pans" data-v="${k}"><kbd>${i+1}</kbd>${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}
-else if(P.mode==='pairs'){
-let l;do l=pick(MP);while(P.cur&&l===P.cur.l);
-const w=pick(l);P.cur={w,l,m:'Minimal Pair'};$('#p-q').textContent='?';$('#p-q').className='big th';
-$('#p-opts').innerHTML=l.map((k,i)=>`<button class="opt" data-a="pans" data-v="${k}"><kbd>${i+1}</kbd><span class="th" style="font-size:1.4rem">${k}</span></button>`).join('');
-spk(w);
-}
 else{let w;do w=pick(WORDS);while(P.cur&&w.w===P.cur.w);P.cur=w;
 $('#p-q').textContent=P.mode==='listen'?'?':w.w;$('#p-q').className='big th';
 $('#p-opts').innerHTML=TK.map((k,i)=>`<button class="opt t-${k}" data-a="pans" data-v="${k}"><kbd>${i+1}</kbd>${T[k][0]} ${T[k][1]}</button>`).join('');
@@ -530,8 +566,7 @@ $$('#p-opts .opt').forEach(b=>{b.disabled=true;if(b.dataset.v===right)b.classLis
 log.bump('a');
 if(ok){log.bump('c');P.sc++;P.st++;if(P.st>P.best){P.best=P.st;store.set('ttm.best',P.best)}}else P.st=0;
 if(P.mode==='class'){$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${c.c}</b> ${c.n} is ${c.cl} class (${c.m.toLowerCase()}).`}
-else if(P.mode==='pairs'){$('#p-q').textContent=c.w;$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: The word was <b>${c.w}</b>.`}
-else{$('#p-q').textContent=c.w;$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b>${c.w}</b> ${esc(c.rom)} (${esc(c.m)}). ${esc(c.why)}.`;srs.add(c.w,T[c.t][0],c.m,ok)}
+else{$('#p-q').textContent=c.w;$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${c.w}</b> ${esc(fr(c.s))} (${esc(c.m)}). ${esc(c.why)}.${c.set?`<br>Compare: ${c.set.map(x=>`<span class="th">${esc(x.w)}</span> ${T[x.t][0]}`).join(' · ')}`:''}`;srs.add(c.w,T[c.t][0],c.m,ok)}
 pStats();
 if(ok)setTimeout(()=>{if(P.ans&&$('#v-practice').classList.contains('on'))pNext()},1000);else $('#p-next').hidden=false}
 let rq=[],rcur=null,rev=false;
@@ -543,9 +578,9 @@ const card=$('#s-card');
 if(!rcur&&rq.length){rcur=rq.shift();rev=false}
 if(rcur&&!srs.get()[rcur])rcur=null;
 if(!rcur){card.innerHTML=`<div class="empty">${d.length?'Nothing due. Come back tomorrow or practice to add more.':'No words yet. Analyze a word or play Practice and they show up here.'}</div>`}
-else{const c=srs.get()[rcur],w=parse(c.w)[0],sy=w&&w.sy?w.sy:[];
+else{const c=srs.get()[rcur],w=parse(c.w)[0],ss=w&&w.sy?w.sy:[];
 card.innerHTML=`<div class="big th">${esc(c.w)}</div><div class="row" style="justify-content:center"><button class="btn ic" data-a="spkw" data-v="${esc(c.w)}" aria-label="Play">&#9835;</button></div>
-${rev?`<div style="text-align:center"><div class="res">${sy.map(s=>T[s.tone][0]+' '+T[s.tone][1]).join(' · ')||c.t}<br><span style="font-weight:600;font-size:1.1rem;color:var(--tx)">${sy.map(s=>s.rom).join('-')}</span></div><div style="color:var(--mu);margin-bottom:12px">${esc(c.m)}</div>${sy.length?contour(sy.map(s=>s.tone)):''}<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-a="grade" data-v="0">Again (1)</button><button class="btn p" data-a="grade" data-v="1">Good (2)</button><button class="btn" data-a="grade" data-v="2">Easy (3)</button></div></div>`:`<p class="sub" style="text-align:center;margin:8px auto 14px">Say the tone aloud, then reveal.</p><div class="row" style="justify-content:center"><button class="btn p" data-a="reveal">Reveal (Space)</button></div>`}`}
+${rev?`<div style="text-align:center"><div class="res" style="color:var(--tx)">${ss.length?ss.map(y=>`<span class="t-${y.tone}" style="color:var(--c)">${T[y.tone][0]} ${T[y.tone][1]}</span>`).join(' · '):esc(c.t)} · ${esc(ss.map(fr).join('-'))}</div><div style="color:var(--mu)">${esc(c.m)}</div>${ss.length?contour(ss.map(y=>y.tone)):''}</div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-a="grade" data-v="0">Again (1)</button><button class="btn p" data-a="grade" data-v="1">Good (2)</button><button class="btn" data-a="grade" data-v="2">Easy (3)</button></div>`:`<p class="sub" style="text-align:center;margin:8px auto 14px">Say the tone aloud, then reveal.</p><div class="row" style="justify-content:center"><button class="btn p" data-a="reveal">Reveal (Space)</button></div>`}`}
 $('#s-body').innerHTML=d.length?d.map(c=>`<tr><td class="l th" style="font-size:1.2rem;font-weight:700">${esc(c.w)} <span style="font:400 .8rem Figtree;color:var(--mu)">${esc(c.m)}</span></td><td>${esc(c.t)}</td><td>${c.ok}</td><td>${c.ng}</td><td>${c.due<=day()?'Today':'in '+(c.due-day())+'d'}</td><td><button class="btn sm" data-a="sdel" data-v="${esc(c.w)}" aria-label="Remove">✕</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Empty</td></tr>';
 badge()}
 function grade(g){
@@ -574,14 +609,31 @@ const per=navigator.storage&&navigator.storage.persisted?await navigator.storage
 const[ntr,ngl,fc]=await Promise.all([idb.count('tr'),idb.count('gl'),idb.get('meta','fontcss')]);
 const pairs=await Promise.all([['en','th'],['th','en']].map(async([s,t])=>({s,t,a:await odAvail(s,t)})));
 const ST={available:'Ready, works offline',downloading:'Downloading…',unsupported:'Not supported in this browser (recent desktop Chrome)',unavailable:'Not available for this language pair'};
+const sw=await swState();
 const row=(t,d,b)=>`<div class="orow"><div><b>${t}</b><span class="wa">${d}</span></div><div class="row">${b||''}</div></div>`;
 el.innerHTML=row('Connection',online()?'Online':'Offline')+
+row('App page',sw.t,sw.b)+
 row('Fonts',fc?`Saved on this device (${mb(fc.size||0)})`:'Not saved yet',fc?'<button class="btn sm" data-a="fclr">Remove</button>':'<button class="btn sm p" data-a="fdl">Download</button>')+
 pairs.map(p=>row(`On-device translator ${p.s} → ${p.t}`,p.a==='downloadable'?'Not downloaded yet':ST[p.a]||p.a,p.a==='downloadable'?`<button class="btn sm p" data-a="odl" data-v="${p.s}|${p.t}">Download</button>`:'')).join('')+
 row('Saved translations',`${ntr} saved, reused without a connection`,'<button class="btn sm" data-a="cltr">Clear</button>')+
 row('Saved word meanings',`${ngl} saved besides the ${Object.keys(LEX).length} built-in words`,'<button class="btn sm" data-a="warmh">Save meanings for my history</button><button class="btn sm" data-a="clgl">Clear</button>')+
 row('Built-in phrasebook',`${EXS.length} phrases in several languages`)+
 row('Storage',est&&est.quota?`${mb(est.usage||0)} used of ${mb(est.quota)}. ${per?'Protected from automatic cleanup.':'May be cleaned up by the browser when space is low.'}`:'Not reported by this browser',per?'':'<button class="btn sm" data-a="perst">Protect from cleanup</button>')}
+async function swState(){
+const ins=deferred?'<button class="btn sm p" data-a="inst">Install app</button>':'';
+if(!('serviceWorker' in navigator))return{t:'Service workers are not supported in this browser',b:ins};
+if(!/^https?:$/.test(location.protocol))return{t:'Opened as a local file. Keep the file on your device and it opens offline. Host it over https with sw.js beside it to install it as an app.',b:''};
+let r=null;try{r=await navigator.serviceWorker.getRegistration()}catch{}
+return r&&r.active?{t:'Page cached for offline loading',b:ins}:{t:'sw.js was not found beside this page. Put sw.js in the same folder to enable offline loading from the web.',b:ins}}
+function iconUrl(z){try{const c=document.createElement('canvas');c.width=c.height=z;const g=c.getContext('2d');g.fillStyle='#0f1b1d';g.fillRect(0,0,z,z);g.fillStyle='#7fd1c0';g.font=`800 ${z*.62}px Sarabun,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('ก',z/2,z*.54);return c.toDataURL('image/png')}catch{return''}}
+function pwa(){
+try{
+const i1=iconUrl(192),i2=iconUrl(512),base=location.href.split('#')[0];
+const mf={name:'Thai Tone Master',short_name:'Tone Master',start_url:base,scope:base.replace(/[^/]*$/,''),display:'standalone',background_color:'#0f1b1d',theme_color:'#0f1b1d',icons:[{src:i1,sizes:'192x192',type:'image/png'},{src:i2,sizes:'512x512',type:'image/png'}]};
+const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));document.head.appendChild(l);
+const a=document.createElement('link');a.rel='apple-touch-icon';a.href=i1;document.head.appendChild(a)}catch{}
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(r=>{if(r.active)r.active.postMessage({cache:location.href.split('#')[0]})}).catch(()=>{})}
+function refresh(){const v=cur();if(v==='analyze')view();else if(v==='review')runReview();else if(v==='ref')runRef();else if(v==='calc')runCalc()}
 function net(){const on=online();$('#net').innerHTML=`<i style="background:${on?'var(--t-low)':'var(--t-rising)'}"></i>${on?'Online':'Offline'}`}
 const TABS=[['analyze','Analyze'],['calc','Calculator'],['ref','Reference'],['practice','Practice'],['review','Review'],['history','History'],['offline','Offline']];
 function go(t){
@@ -599,10 +651,15 @@ const A={
 pick(v){sel=+v;view()},
 wpick(v){const w=R&&R.words&&R.words.find(x=>x.w===v);if(w){sel=w.i;view()}},
 wspk:v=>spk(v),
-wadd(v){const x=R&&R.words&&R.words.find(y=>y.w===v);if(x){srs.add(x.w,x.sy.map(s=>T[s.tone][0]).join(' · '),x.g&&x.g.m||'');toast('Added to review')}},
+wadd(v){const x=R&&R.words&&R.words.find(y=>y.w===v);if(x){srs.add(x.w,tn(x.sy),x.g&&x.g.m||'');toast('Added to review')}},
 spkone(){spk(flat[sel]&&flat[sel].txt)},spkall(){spk(R&&R.th)},spkw:v=>spk(v),
-addall(){if(!R||!R.words)return;R.words.forEach(x=>srs.add(x.w,x.sy.map(s=>T[s.tone][0]).join(' · '),x.g&&x.g.m||''));toast('Added to review')},
-copyrom(){if(R&&R.toks)copy(R.toks.map(t=>t.x||t.sy.map(s=>s.rom).join('-')).join(' '))},
+spkslow(){if(R&&R.flat)speakList(R.flat.map(s=>s.txt))},
+wslow(v){const x=R&&R.words&&R.words.find(y=>y.w===v);if(x)speakList(x.sy.map(s=>s.txt))},
+mpall(v){speakList(MP[+v].map(x=>x.w))},
+rec(){recStart()},
+inst(){if(deferred){deferred.prompt();deferred=null}},
+addall(){if(!R||!R.words)return;R.words.forEach(x=>srs.add(x.w,tn(x.sy),x.g&&x.g.m||''));toast('Added to review')},
+copyrom(){if(R&&R.toks)copy(R.toks.map(t=>t.x||t.sy.map(fr).join('-')).join(' '))},
 cpth(){copy(R&&R.th)},
 agoo(){analyze(true)},
 aclr(){$('#a-in').value='';sel=0;analyze(true);$('#a-in').focus()},
@@ -667,9 +724,6 @@ Object.values(d.srs||{}).forEach(c=>{if(c&&typeof c.w==='string'&&!s[c.w])s[c.w]
 srs.set(s);badge();runHist();chips();toast('Imported')}catch{toast('That file is not a valid export')}};
 r.readAsText(f);e.target.value=''});
 $('#font').addEventListener('change',e=>{document.documentElement.dataset.font=e.target.value;store.set('ttm.font',e.target.value)});
-$('#speed').addEventListener('change',()=>toast('Audio speed updated'));
-$('#rom').addEventListener('change',()=>{if(R)build(R.input,R,aSeq);if(cur()==='review'&&rev)runReview()});
-$('#cb-mode').addEventListener('click',e=>{const cb=$('html').dataset.cb==='true';$('html').dataset.cb=!cb;e.target.classList.toggle('p',!cb);if(R)view();if(cur()==='calc')runCalc();if(cur()==='review'&&rev)runReview()});
 function theme(l){document.documentElement.dataset.theme=l?'light':'dark';$('#theme').textContent=l?'Dark':'Light';store.set('ttm.light',l)}
 $('#theme').addEventListener('click',()=>theme(document.documentElement.dataset.theme!=='light'));
 $('#nav').innerHTML=`<div class="brand"><b>ก</b>Tone Master</div>`+TABS.map(([k,l])=>`<button class="tab" role="tab" data-t="${k}">${l}${k==='review'?'<i hidden></i>':''}</button>`).join('');
@@ -680,8 +734,15 @@ window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
 window.addEventListener('offline',()=>{net();if(cur()==='offline')runOff()});
 window.addEventListener('online',()=>{net();idb.get('meta','fontcss').then(m=>{if(!m)fonts.download().catch(()=>{})});if(cur()==='offline')runOff()});
 (async()=>{let ok=false;try{ok=await fonts.apply()}catch{}if(!ok){fonts.link();if(online())fonts.download().catch(()=>{})}})();
-const mUrl=URL.createObjectURL(new Blob([JSON.stringify({name:'Thai Tone Master',short_name:'ToneMaster',start_url:location.href,display:'standalone',background_color:'#0f1b1d',theme_color:'#7fd1c0',icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="80">ก</text></svg>',sizes:'any'}]})],{type:'application/manifest+json'}));
-const mL=document.createElement('link');mL.rel='manifest';mL.href=mUrl;document.head.appendChild(mL);
+$('#rsys').value=ROMS;
+$('#rsys').addEventListener('change',e=>{ROMS=e.target.value;store.set('ttm.rom',ROMS);refresh()});
+$('#spd').value=String(RATE);
+if(!$('#spd').value)$('#spd').value='0.85';
+$('#spd').addEventListener('change',e=>{RATE=Number(e.target.value);store.set('ttm.rate',RATE)});
+$('#cbt').setAttribute('aria-pressed',String(CB));
+$('#cbt').addEventListener('click',e=>{CB=!CB;store.set('ttm.cb',CB);e.currentTarget.setAttribute('aria-pressed',String(CB));refresh()});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(cur()==='offline')runOff()});
+(document.fonts?document.fonts.ready:Promise.resolve()).then(pwa);
 net();chips();badge();go(location.hash.slice(1));
 </script>
 </body>
