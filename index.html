@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Thai Tone Master</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Sarabun:wght@400;700;800&family=Kanit:wght@400;600&family=Prompt:wght@400;600&family=Mitr:wght@400;500&family=Itim&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0f1b1d;--sf:#17282b;--sf2:#203538;--ln:#2f4a4e;--tx:#eaf1ee;--mu:#9bb2ae;--ac:#7fd1c0;--on:#0b1514;--t-mid:#7db4e6;--t-low:#7fd39b;--t-falling:#f07a72;--t-high:#b9a0f2;--t-rising:#f4c457;--thai:'Sarabun',sans-serif}
 [data-theme=light]{--bg:#eef3f0;--sf:#fff;--sf2:#e4ede9;--ln:#c4d4ce;--tx:#12201f;--mu:#52675f;--ac:#0e7a69;--on:#fff;--t-mid:#1b6fb0;--t-low:#12874a;--t-falling:#c93b32;--t-high:#7447d1;--t-rising:#a86f00}
@@ -20,12 +17,13 @@ nav{position:sticky;top:0;height:100vh;padding:20px 12px;border-right:1px solid 
 .brand b{font:800 1.6rem var(--thai);color:var(--ac);margin-right:8px}
 .tab{all:unset;cursor:pointer;padding:10px 12px;border-radius:10px;color:var(--mu);font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .tab:hover{background:var(--sf2);color:var(--tx)}
+.tab:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .tab[aria-selected=true]{background:var(--ac);color:var(--on)}
 .tab i{font-style:normal;font-size:.72rem;background:var(--t-falling);color:#fff;border-radius:9px;padding:0 7px}
 main{padding:22px clamp(16px,4vw,44px) 40px;max-width:1060px;width:100%}
-.top{display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px}
+.top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:14px}
 h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
-.sub{color:var(--mu);margin-bottom:18px;max-width:62ch}
+.sub{color:var(--mu);margin-bottom:18px;max-width:66ch}
 .panel{display:none}.panel.on{display:block}
 .card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:18px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -45,7 +43,7 @@ textarea{font:1.6rem/1.4 var(--thai);resize:vertical;min-height:92px}
 select{width:auto;padding:8px 10px}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 label.lb{display:block;font-size:.8rem;font-weight:600;color:var(--mu);margin:0 0 6px}
-.hero{padding:18px 18px 8px}
+.hero{padding:18px 18px 8px;overflow-x:auto}
 .hero svg{width:100%;height:auto;display:block}
 .syls{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0}
 .wd{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--sf2)}
@@ -67,6 +65,7 @@ label.lb{display:block;font-size:.8rem;font-weight:600;color:var(--mu);margin:0 
 .tile small{display:block;color:var(--mu);font-size:.76rem;line-height:1.3}
 .seg{display:inline-flex;background:var(--sf2);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap;margin-bottom:16px}
 .seg button{all:unset;cursor:pointer;padding:7px 14px;border-radius:9px;font-weight:600;color:var(--mu)}
+.seg button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .seg button[aria-selected=true]{background:var(--ac);color:var(--on)}
 .big{font:800 clamp(3rem,10vw,5rem)/1.1 var(--thai);text-align:center;padding:8px 0}
 .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin:14px 0}
@@ -85,9 +84,30 @@ td.l,th.l{text-align:left}
 .cut{color:var(--c);font-weight:700}
 .rule{border-left:4px solid var(--c);padding:10px 14px;background:var(--sf);border-radius:0 10px 10px 0;margin-bottom:10px}
 .rule b{color:var(--c)}
-#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 .empty{color:var(--mu);padding:26px;text-align:center}
+.pill{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--sf2);color:var(--mu);border:1px solid var(--ln);display:inline-flex;align-items:center;gap:6px}
+.pill i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.thbig{font:800 clamp(1.8rem,5vw,2.8rem)/1.35 var(--thai)}
+.wa{color:var(--mu);font-size:.85rem}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.wc{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.wc.on{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac)}
+.wsel{all:unset;cursor:pointer;display:block;width:100%}
+.wsel:focus-visible{outline:2px solid var(--ac);outline-offset:4px;border-radius:6px}
+.wtones{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.tg{font-size:.72rem;font-weight:800;color:var(--c);border:1px solid var(--c);border-radius:8px;padding:0 6px}
+.wm{font-weight:700}
+.stat b{font-size:1.6rem;display:block;line-height:1.2}
+.stat span{color:var(--mu);font-size:.8rem}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px}
+.bar{flex:1;background:var(--ac);border-radius:4px 4px 0 0;min-height:3px}
+.hi{display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--ln);align-items:flex-start}
+.hi:last-child{border-bottom:0}
+.orow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln);flex-wrap:wrap}
+.orow:last-child{border-bottom:0}
+.orow b{display:block}
 @media(max-width:760px){
 .app{display:block}
 nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;overflow-x:auto;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--ln);z-index:20;gap:2px}
@@ -101,17 +121,21 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 <nav role="tablist" aria-label="Sections" id="nav"></nav>
 <main>
 <div class="top">
+<span class="pill" id="net"></span>
 <select id="font" aria-label="Thai font"><option value="sarabun">Sarabun</option><option value="kanit">Kanit</option><option value="prompt">Prompt</option><option value="mitr">Mitr</option><option value="itim">Itim</option></select>
 <button class="btn" id="theme" aria-label="Toggle theme">Light</button>
 </div>
 
 <section class="panel" id="v-analyze">
 <h2>Analyze</h2>
-<p class="sub">Type any Thai word or phrase. Every syllable gets its romanization, tone and the exact rule behind it.</p>
-<label class="lb" for="a-in">Thai text</label>
-<textarea id="a-in" lang="th" placeholder="สวัสดี, ทะเล, คนกินข้าว"></textarea>
-<div class="row" style="margin:10px 0 16px" id="a-ex"></div>
-<div id="a-out"><div class="empty card">Enter Thai text to see its tones.</div></div>
+<p class="sub">Type or paste text in any language. Thai is analyzed directly. Anything else is translated to Thai first, then you get the whole Thai sentence and every Thai word with its meaning, romanization, tone and rule.</p>
+<label class="lb" for="a-in">Any language</label>
+<textarea id="a-in" placeholder="Hello, how are you? / สวัสดี / 你好 / Gracias"></textarea>
+<div class="row" style="margin:10px 0 6px"><button class="btn p" data-a="agoo">Analyze</button><button class="btn" data-a="aclr">Clear</button><span class="wa">Ctrl + Enter</span></div>
+<div class="row" id="a-ex" style="margin-top:8px"></div>
+<div class="row" id="a-ex2" style="margin-top:8px"></div>
+<div class="row" id="a-rc" style="margin:8px 0 16px"></div>
+<div id="a-out"></div>
 </section>
 
 <section class="panel" id="v-calc">
@@ -142,14 +166,19 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 <div class="card sc"><table><thead><tr><th class="l">Word</th><th>Tone</th><th>Right</th><th>Wrong</th><th>Next</th><th></th></tr></thead><tbody id="s-body"></tbody></table></div>
 </section>
 
-<section class="panel" id="v-translate">
-<h2>Translate</h2>
-<p class="sub">English and Thai. Send any Thai result straight to the analyzer. Needs a connection; the phrase chips work offline.</p>
-<div class="row" style="margin-bottom:10px"><select id="tr-d"><option value="en|th">English to Thai</option><option value="th|en">Thai to English</option></select></div>
-<textarea id="tr-in" style="font-family:Figtree,sans-serif;font-size:1.2rem" placeholder="Type text to translate"></textarea>
-<div class="row" style="margin:10px 0"><button class="btn p" data-a="trgo">Translate</button><button class="btn" data-a="trclr">Clear</button></div>
-<div class="card" id="tr-out" hidden></div>
-<label class="lb" style="margin-top:18px">Useful phrases</label><div class="grid" id="tr-ph"></div>
+<section class="panel" id="v-history">
+<h2>History</h2>
+<p class="sub">Every analysis and practice answer is recorded in this browser only. Nothing is sent anywhere.</p>
+<div id="h-top"></div>
+<div class="row" style="margin:16px 0 10px"><input type="search" id="h-q" placeholder="Search history" aria-label="Search history" style="flex:1;min-width:180px"><button class="btn sm" data-a="hexp">Export</button><button class="btn sm" data-a="himp">Import</button><button class="btn sm" data-a="hclr">Clear history</button><input type="file" id="h-file" accept=".json" hidden></div>
+<div class="card" id="h-list" style="padding:0"></div>
+</section>
+
+<section class="panel" id="v-offline">
+<h2>Offline</h2>
+<p class="sub">Fonts, translations and word meanings are saved in this browser the first time you use them. Keep this file on your device and it keeps working without a connection. Thai speech uses the voices installed on your device.</p>
+<div class="row" style="margin-bottom:14px"><button class="btn p" data-a="dlall">Download everything for offline</button></div>
+<div class="card" id="o-body"></div>
 </section>
 </main>
 </div>
@@ -158,6 +187,14 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const pool=async(items,n,fn)=>{let i=0;await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{while(i<items.length){const k=i++;try{await fn(items[k],k)}catch(e){if(e&&e.fatal)throw e}}}))};
+const idb={d:null,open(){return this.d||(this.d=new Promise((res,rej)=>{const r=indexedDB.open('ttm',1);r.onupgradeneeded=()=>{['tr','gl','fonts','meta'].forEach(s=>r.result.createObjectStore(s))};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))},
+async tx(s,m,f){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction(s,m),o=t.objectStore(s),q=f(o);t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})},
+get(s,k){return this.tx(s,'readonly',o=>o.get(k)).catch(()=>undefined)},
+put(s,k,v){return this.tx(s,'readwrite',o=>o.put(v,k)).catch(()=>undefined)},
+del(s,k){return this.tx(s,'readwrite',o=>o.delete(k)).catch(()=>undefined)},
+clear(s){return this.tx(s,'readwrite',o=>o.clear()).catch(()=>undefined)},
+count(s){return this.tx(s,'readonly',o=>o.count()).then(v=>v||0).catch(()=>0)}};
 const CR="ก|Kor Kai|m|g|k|Chicken;ข|Khor Khai|h|kh|k|Egg;ฃ|Khor Khuat|h|kh|k|Bottle;ค|Khor Khwai|l|kh|k|Buffalo;ฅ|Khor Khon|l|kh|k|Person;ฆ|Khor Rakhang|l|kh|k|Bell;ง|Ngor Ngu|l|ng|ng|Snake;จ|Jor Jan|m|j|t|Plate;ฉ|Chor Ching|h|ch|-|Cymbal;ช|Chor Chang|l|ch|t|Elephant;ซ|Sor So|l|s|t|Chain;ฌ|Chor Choe|l|ch|-|Tree;ญ|Yor Ying|l|y|n|Woman;ฎ|Dor Chada|m|d|t|Headdress;ฏ|Tor Patak|m|t|t|Goad;ฐ|Thor Than|h|th|t|Pedestal;ฑ|Thor Montho|l|th|t|Montho;ฒ|Thor Phuthao|l|th|t|Elder;ณ|Nor Nen|l|n|n|Novice monk;ด|Dor Dek|m|d|t|Child;ต|Tor Tao|m|t|t|Turtle;ถ|Thor Thung|h|th|t|Sack;ท|Thor Thahan|l|th|t|Soldier;ธ|Thor Thong|l|th|t|Flag;น|Nor Nu|l|n|n|Mouse;บ|Bor Baimai|m|b|p|Leaf;ป|Por Pla|m|p|p|Fish;ผ|Phor Phueng|h|ph|-|Bee;ฝ|For Fa|h|f|-|Lid;พ|Phor Phan|l|ph|p|Tray;ฟ|For Fan|l|f|p|Tooth;ภ|Phor Samphao|l|ph|p|Junk ship;ม|Mor Ma|l|m|m|Horse;ย|Yor Yak|l|y|y|Giant;ร|Ror Ruea|l|r|n|Boat;ล|Lor Ling|l|l|n|Monkey;ว|Wor Waen|l|w|w|Ring;ศ|Sor Sala|h|s|t|Pavilion;ษ|Sor Ruesi|h|s|t|Hermit;ส|Sor Suea|h|s|t|Tiger;ห|Hor Hip|h|h|-|Chest;ฬ|Lor Chula|l|l|n|Kite;อ|Or Ang|m|-|-|Basin;ฮ|Hor Nokhuk|l|h|-|Owl";
 const CLN={m:'mid',h:'high',l:'low'};
 const CONS=CR.split(';').map(r=>{const p=r.split('|');return{c:p[0],n:p[1],cl:CLN[p[2]],i:p[3]==='-'?'':p[3],f:p[4],m:p[5]}});
@@ -195,19 +232,19 @@ const live=!stop&&(fm!==''||v[2]===1||vr==='am'||vr==='ai');
 const end=Math.max(j+k+(mk?1:0),st+1);
 return{txt:w.slice(st,end),end,cl,init,why,mk,vr,len:v[2],fin,fm,live,tone:toneOf(cl,mk,live,v[2]),rom:ir+vr+fm,lead}}
 function parse(text){
-const t=text.replace(/[\u0E01-\u0E2E][ัิีึืุู]*\u0E4C/g,'');
+const t=text.replace(/[ก-ฮ][ัิีึืุู]*์/g,'');
 const seg=window.Intl&&Intl.Segmenter?[...new Intl.Segmenter('th',{granularity:'word'}).segment(t)].map(s=>s.segment):t.split(/(\s+)/);
 const out=[];
 for(const w of seg){
-if(!/[\u0E00-\u0E7F]/.test(w)){if(w.trim())out.push({x:w});continue}
+if(!/[฀-๿]/.test(w)){if(w.trim())out.push({x:w});continue}
 const sy=[];let i=0;
 while(i<w.length){const s=syl(w,i);if(!s){i++;continue}sy.push(s);i=s.end}
-if(sy.length)out.push({sy})}
+if(sy.length)out.push({sy,w})}
 return out}
 const smooth=p=>{let d=`M${p[0][0]} ${p[0][1]}`;for(let i=1;i<p.length-1;i++)d+=`Q${p[i][0]} ${p[i][1]} ${(p[i][0]+p[i+1][0])/2} ${(p[i][1]+p[i+1][1])/2}`;const l=p[p.length-1];return d+`L${l[0]} ${l[1]}`};
 function contour(tones,sel){
 const W=tones.length*112+30,H=140;
-let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pitch contour: ${tones.map(t=>T[t][0]).join(', ')}">`;
+let s=`<svg viewBox="0 0 ${W} ${H}"${tones.length>8?` style="min-width:${tones.length*64}px"`:''} role="img" aria-label="Pitch contour: ${tones.map(t=>T[t][0]).join(', ')}">`;
 [['H',20],['M',70],['L',120]].forEach(([l,y])=>s+=`<line x1="26" x2="${W-4}" y1="${y}" y2="${y}" stroke="var(--ln)" stroke-dasharray="3 5"/><text x="4" y="${y+4}" fill="var(--mu)" font-size="11">${l}</text>`);
 tones.forEach((t,k)=>{const x0=40+k*112,p=T[t][3].map((v,i)=>[x0+i*21,20+(1-v)*100]);
 s+=`<g class="t-${t}" opacity="${sel==null||sel===k?1:.3}"><path d="${smooth(p)}" fill="none" stroke="var(--c)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${p[4][0]}" cy="${p[4][1]}" r="6" fill="var(--c)"/></g>`});
@@ -216,32 +253,173 @@ function spk(t){
 if(!t||!('speechSynthesis' in window))return toast('Speech is not available in this browser');
 const syn=speechSynthesis,go=()=>{const vs=syn.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return toast('No Thai voice installed on this device');syn.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='th-TH';u.voice=vs.find(v=>/Narisa|Kanya|Google/.test(v.name))||vs[0];u.rate=.85;syn.speak(u)};
 syn.getVoices().length?go():syn.addEventListener('voiceschanged',go,{once:true})}
-let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2400)}
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2600)}
 const day=()=>Math.floor(Date.now()/864e5);
+const dk=()=>new Date().toLocaleDateString('en-CA');
 const srs={get:()=>store.get('ttm.srs',{}),set:d=>store.set('ttm.srs',d),
-add(w,t,m,ok){const d=this.get();let c=d[w];if(!c)c=d[w]={w,t,m:m||'',iv:0,due:day()+(ok?1:0),ok:0,ng:0};if(ok===true)c.ok++;if(ok===false){c.ng++;c.due=day();c.iv=1}this.set(d);badge()},
+add(w,t,m,ok){const d=this.get();let c=d[w];if(!c)c=d[w]={w,t,m:m||'',iv:0,due:day()+(ok?1:0),ok:0,ng:0};if(m&&!c.m)c.m=m;if(ok===true)c.ok++;if(ok===false){c.ng++;c.due=day();c.iv=1}this.set(d);badge()},
 due(){return Object.values(this.get()).filter(c=>c.due<=day())}};
 const badge=()=>{const n=srs.due().length,b=$('#nav [data-t=review] i');if(b){b.textContent=n;b.hidden=!n}};
-let sel=0,flat=[];
+const log={get:()=>store.get('ttm.log',{}),set(v){store.set('ttm.log',v)},bump(k){const l=this.get(),d=dk(),e=l[d]||(l[d]={n:0,a:0,c:0});e[k]=(e[k]||0)+1;this.set(l)}};
+const nrm=s=>s.trim().replace(/\s+/g,' ').toLowerCase().replace(/[.!?。！？]+$/,'');
+const hist={get:()=>store.get('ttm.hist',[]),set(v){store.set('ttm.hist',v)},
+save(r,touch){const id=nrm(r.input),h=this.get(),o=h.find(x=>x.id===id),e={id,ts:touch||!o?Date.now():o.ts,input:r.input,src:r.src,th:r.th,en:r.en||'',via:r.via,n:r.words.length};
+const rest=h.filter(x=>x.id!==id);rest.push(e);rest.sort((a,b)=>b.ts-a.ts);this.set(rest.slice(0,500))}};
+const LX="ฉัน,I/me;ผม,I (male)/hair;ดิฉัน,I (female);เธอ,you/she;คุณ,you;เขา,he/she;เรา,we;พวกเรา,we/us;พวกเขา,they;มัน,it;ใคร,who;เพื่อน,friend;พ่อ,father;แม่,mother;พี่,older sibling;น้อง,younger sibling;ลูก,child/offspring;สามี,husband;ภรรยา,wife;แฟน,boyfriend/girlfriend;ครอบครัว,family;คน,person;ผู้ชาย,man;ผู้หญิง,woman;เด็ก,child;ครู,teacher;หมอ,doctor;นักเรียน,student;สวัสดี,hello/goodbye;ขอบคุณ,thank you;ขอโทษ,sorry/excuse me;ครับ,polite particle (male);ค่ะ,polite particle (female);คะ,polite question particle (female);นะ,softening particle;สิ,urging particle;ล่ะ,emphasis particle;เลย,at all/very/right away;ไม่เป็นไร,never mind;ลาก่อน,goodbye;ยินดี,glad;ใช่,yes/correct;ไม่,no/not;ไม่ใช่,is not;อะไร,what;ที่ไหน,where;เมื่อไหร่,when;ทำไม,why;อย่างไร,how;ยังไง,how;เท่าไหร่,how much;เท่าไร,how much;กี่,how many;ไหม,question particle;หรือ,or/question particle;หรือเปล่า,or not;เป็น,to be;อยู่,to be at/to stay;มี,to have;ไป,to go;มา,to come;กิน,to eat;ดื่ม,to drink;ดู,to watch/to look;ฟัง,to listen;พูด,to speak;อ่าน,to read;เขียน,to write;เรียน,to study;สอน,to teach;ทำ,to do/to make;ซื้อ,to buy;ขาย,to sell;ให้,to give/for;เอา,to take/to want;รัก,to love;ชอบ,to like;อยาก,to want;ต้อง,must/to need;รู้,to know;เข้าใจ,to understand;คิด,to think;นอน,to sleep;ตื่น,to wake up;เดิน,to walk;วิ่ง,to run;นั่ง,to sit;ยืน,to stand;เปิด,to open;ปิด,to close;ช่วย,to help;รอ,to wait;หา,to look for;เจอ,to meet/to find;ถาม,to ask;ตอบ,to answer;เล่น,to play;ทำงาน,to work;ร้องเพลง,to sing;หัวเราะ,to laugh;ร้องไห้,to cry;เรียก,to call;โทร,to phone;ส่ง,to send;ใช้,to use;จ่าย,to pay;เหนื่อย,tired;หิว,hungry;อิ่ม,full;ง่วง,sleepy;ป่วย,sick;อาบน้ำ,to bathe;ล้าง,to wash;ขับ,to drive;ขึ้น,to go up;ลง,to go down;กลับ,to return;ถึง,to arrive/until;ออก,to exit;เข้า,to enter;เห็น,to see;ลอง,to try;จำ,to remember;ลืม,to forget;หยุด,to stop;เริ่ม,to start;จบ,to end;แต่งงาน,to marry;เกิด,to be born;ตาย,to die;ชนะ,to win;แพ้,to lose;ได้,can/to get;ได้ยิน,to hear;เรียนรู้,to learn;เที่ยว,to go out/to travel;พัก,to rest;ชวน,to invite;แนะนำ,to recommend/to introduce;ดี,good;เลว,bad;ไม่ดี,not good;ใหญ่,big;เล็ก,small;ใหม่,new;เก่า,old (things);แก่,old (people);ร้อน,hot;เย็น,cool/evening;หนาว,cold;อร่อย,delicious;เผ็ด,spicy;หวาน,sweet;เปรี้ยว,sour;เค็ม,salty;ขม,bitter;สวย,beautiful;หล่อ,handsome;น่ารัก,cute;แพง,expensive;ถูก,cheap/correct;ง่าย,easy;ยาก,difficult;เร็ว,fast;ช้า,slow;ไกล,far;ใกล้,near;สูง,tall/high;ต่ำ,low;ยาว,long;สั้น,short;หนัก,heavy;เบา,light;มาก,much/very;น้อย,little/few;สนุก,fun;เบื่อ,bored;สบาย,comfortable;สบายดี,well/fine;ดีใจ,happy;เสียใจ,sad/sorry;กลัว,afraid;โกรธ,angry;สะอาด,clean;สกปรก,dirty;เงียบ,quiet;ดัง,loud;อ้วน,fat;ผอม,thin;ขาว,white;ดำ,black;แดง,red;เขียว,green;เหลือง,yellow;ฟ้า,sky blue;น้ำเงิน,blue;ชมพู,pink;ส้ม,orange;ม่วง,purple;ตรง,straight;น้ำ,water;ข้าว,rice;อาหาร,food;กาแฟ,coffee;ชา,tea;นม,milk;ผลไม้,fruit;ผัก,vegetable;เนื้อ,meat;ไก่,chicken;หมู,pork/pig;ปลา,fish;ไข่,egg;ขนม,snack/dessert;เบียร์,beer;บ้าน,house/home;ห้อง,room;ห้องน้ำ,bathroom;ห้องนอน,bedroom;โรงเรียน,school;โรงพยาบาล,hospital;ตลาด,market;ร้าน,shop;ร้านอาหาร,restaurant;โรงแรม,hotel;สนามบิน,airport;สถานี,station;ถนน,road;เมือง,city;ประเทศ,country;ทะเล,sea;ภูเขา,mountain;แม่น้ำ,river;วัด,temple;รถ,car/vehicle;รถไฟ,train;เครื่องบิน,airplane;เรือ,boat;จักรยาน,bicycle;มอเตอร์ไซค์,motorcycle;ตั๋ว,ticket;เงิน,money;ราคา,price;หนังสือ,book;โทรศัพท์,telephone;คอมพิวเตอร์,computer;ปากกา,pen;โต๊ะ,table;เก้าอี้,chair;ประตู,door;หน้าต่าง,window;เตียง,bed;เสื้อ,shirt;กางเกง,trousers;รองเท้า,shoes;กระเป๋า,bag;หมวก,hat;ฝน,rain;ลม,wind;แดด,sunshine;อากาศ,weather/air;ดวงอาทิตย์,sun;พระจันทร์,moon;ดาว,star;ต้นไม้,tree;ดอกไม้,flower;หมา,dog;แมว,cat;ช้าง,elephant;ม้า,horse;วัว,cow;นก,bird;เสือ,tiger;ลิง,monkey;งู,snake;หนู,mouse;กบ,frog;ตา,eye;หู,ear;จมูก,nose;ปาก,mouth;มือ,hand;เท้า,foot;ขา,leg;หัว,head;หน้า,face/front;ใจ,heart/mind;หัวใจ,heart;ร่างกาย,body;สุขภาพ,health;งาน,work/job;ชีวิต,life;เวลา,time;วัน,day;คืน,night;เช้า,morning;บ่าย,afternoon;สัปดาห์,week;เดือน,month;ปี,year;วันนี้,today;พรุ่งนี้,tomorrow;เมื่อวาน,yesterday;ตอนนี้,now;เสมอ,always;บางครั้ง,sometimes;ชั่วโมง,hour;นาที,minute;ภาษา,language;ภาษาไทย,Thai language;ภาษาอังกฤษ,English language;ไทย,Thai;ประเทศไทย,Thailand;กรุงเทพ,Bangkok;คำ,word;ประโยค,sentence;ปัญหา,problem;ความรัก,love;ความสุข,happiness;ความฝัน,dream;สิ่ง,thing;เรื่อง,story/matter;ข่าว,news;รูป,picture;เพลง,song;หนัง,movie/skin;ยา,medicine;ตำรวจ,police;ทหาร,soldier;มหาวิทยาลัย,university;ศูนย์,zero;หนึ่ง,one;สอง,two;สาม,three;สี่,four;ห้า,five;หก,six;เจ็ด,seven;แปด,eight;เก้า,nine;สิบ,ten;ยี่สิบ,twenty;ร้อย,hundred;พัน,thousand;หมื่น,ten thousand;แสน,hundred thousand;ล้าน,million;และ,and;แต่,but;เพราะ,because;ถ้า,if;ก็,also/then;ที่,that/which/at;ของ,of/belongings;กับ,with;จาก,from;ใน,in;บน,on top of;ใต้,under;ข้าง,beside;หลัง,behind/after;ก่อน,before;ด้วย,with/also;เพื่อ,for;แล้ว,already/then;กำลัง,in the middle of (-ing);จะ,will;ยัง,still/yet;เคย,ever/used to;ไม่มี,not have;นี้,this;นั้น,that;นี่,this;นั่น,that;โน่น,over there;ทุก,every;ทั้งหมด,all;บาง,some;อีก,more/again;ที่สุด,most;กว่า,more than;เกินไป,too much;จริง,real/true;จริงๆ,really;แค่,only;ด้วยกัน,together;เอง,oneself;ครั้ง,time (occurrence);ตัว,classifier for animals;อัน,classifier for things;เล่ม,classifier for books;แก้ว,glass;จาน,plate;ชาม,bowl;ช้อน,spoon;ส้อม,fork;ขวด,bottle";
+const WS="กา,crow;กบ,frog;ไก่,chicken;เก้า,nine;โต๊ะ,table;ตั๋ว,ticket;ขา,leg;สิบ,ten;สี่,four;ห้า,five;มา,come;รัก,love;พูด,speak;พี่,older sibling;ม้า,horse;คน,person;กิน,eat;ไป,go;ใจ,heart;ข้าว,rice;น้ำ,water;หมา,dog;หวาน,sweet;บ้าน,house;เด็ก,child;ดี,good;ใหม่,new;ร้อน,hot;เย็น,cool;ไทย,Thai;แมว,cat;ปลา,fish;เสือ,tiger;หนาว,cold;ถูก,cheap;แพง,expensive;สวย,pretty;ลูก,offspring;เขา,he or she;เรา,we;ครู,teacher;ตรง,straight;อยู่,stay;ยาก,difficult;ง่าย,easy";
+const LEX={};
+LX.split(';').forEach(r=>{const i=r.indexOf(','),p=r.slice(i+1).split('/');LEX[r.slice(0,i)]={m:p[0],a:p.slice(1)}});
+WS.split(';').forEach(r=>{const[w,m]=r.split(',');if(!LEX[w])LEX[w]={m,a:[]}});
+const REV={};
+Object.values(LEX).length&&Object.entries(LEX).forEach(([th,v])=>[v.m,...v.a].forEach(e=>{const k=e.toLowerCase().replace(/^to /,'');if(!REV[k])REV[k]=th}));
 const EX=['สวัสดี','ทะเล','คนกินข้าว','ฉันรักเธอ','สบายดี','หนังสือ','ครอบครัว','อยู่ไหน'];
-function runAnalyze(){
-const text=$('#a-in').value.trim(),out=$('#a-out');
-if(!text){out.innerHTML='<div class="empty card">Enter Thai text to see its tones.</div>';flat=[];return}
-const toks=parse(text);flat=toks.flatMap(t=>t.sy||[]);
-if(!flat.length){out.innerHTML='<div class="empty card">No Thai letters found.</div>';return}
-if(sel>=flat.length)sel=0;
+const EXS=[['Hello','สวัสดี','en'],['Thank you','ขอบคุณ','en'],['How much?','เท่าไหร่','en'],['Where is the bathroom?','ห้องน้ำอยู่ที่ไหน','en'],['Delicious','อร่อย','en'],['I do not understand','ไม่เข้าใจ','en'],['Not spicy please','ไม่เผ็ด','en'],['I love you','ฉันรักคุณ','en'],['Gracias','ขอบคุณ','es'],['Bonjour','สวัสดี','fr'],['你好','สวัสดี','zh-CN'],['こんにちは','สวัสดี','ja']];
+const PB={},PBR={};
+EXS.forEach(([q,t,l])=>{PB[nrm(q)]={th:t,src:l};if(l==='en'&&!PBR[t])PBR[t]=q});
+const VIA={thai:'Thai input',phrasebook:'Built-in phrasebook',saved:'Saved on this device',device:'On-device translator',online:'Online translation',wordbyword:'Offline word-by-word (approximate)',history:'From history'};
+const langName=c=>{try{return new Intl.DisplayNames(['en'],{type:'language'}).of(c)}catch{return c}};
+const thN=s=>(s.match(/[ก-๎]/g)||[]).length;
+const lt=s=>(s.match(/\p{L}/gu)||[]).length;
+const isTh=s=>{const n=thN(s);return n>0&&n>=lt(s)*.5};
+const online=()=>navigator.onLine!==false;
+async function gt(q,sl,tl,x){
+const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t${x||''}&q=${encodeURIComponent(q)}`,{signal:AbortSignal.timeout?AbortSignal.timeout(9000):undefined});
+if(!r.ok)throw new Error('http');return r.json()}
+const OD={};
+async function odAvail(sl,tl){if(!('Translator' in self))return'unsupported';try{return await Translator.availability({sourceLanguage:sl,targetLanguage:tl})}catch{return'unavailable'}}
+async function odGet(sl,tl,mk){
+if(!('Translator' in self))return null;
+const k=sl+'|'+tl;if(OD[k])return OD[k];
+try{const a=await Translator.availability({sourceLanguage:sl,targetLanguage:tl});
+if(a==='available'||(mk&&(a==='downloadable'||a==='downloading'))){
+OD[k]=await Translator.create({sourceLanguage:sl,targetLanguage:tl,monitor(m){m.addEventListener('downloadprogress',e=>toast(`Downloading ${sl} to ${tl}: ${Math.round(e.loaded*100)}%`))}});return OD[k]}}catch{}
+return null}
+async function detect(q){
+try{if('LanguageDetector' in self&&(await LanguageDetector.availability())==='available'){const d=OD.det||(OD.det=await LanguageDetector.create()),r=await d.detect(q);if(r&&r[0]&&r[0].detectedLanguage&&r[0].detectedLanguage!=='und')return r[0].detectedLanguage}}catch{}
+return /^[\x00-ɏ\s\p{P}\p{N}]+$/u.test(q)?'en':null}
+const remember=async(key,v)=>{await idb.put('tr',key,{...v,ts:Date.now()});return v};
+function offlineWords(q){
+const ws=q.toLowerCase().match(/[\p{L}']+/gu)||[];if(!ws.length)return null;
+let hit=0;const out=[];
+ws.forEach(w=>{const t=REV[w]||REV[w.replace(/(ing|ed|es|s)$/,'')];if(t){hit++;out.push(t)}});
+if(!hit||hit<ws.length*.5)return null;
+return{th:out.join(' '),src:'en',via:'wordbyword'}}
+async function toThai(q){
+const key=nrm(q),pb=PB[key];
+if(pb)return{th:pb.th,src:pb.src,via:'phrasebook'};
+const sv=await idb.get('tr',key);
+if(sv&&sv.th)return{th:sv.th,src:sv.src,via:'saved'};
+const sl=await detect(q);
+if(sl){const t=await odGet(sl,'th');if(t){try{const th=(await t.translate(q)).trim();if(th)return await remember(key,{th,src:sl,via:'device'})}catch{}}}
+if(online()){try{const d=await gt(q,'auto','th'),th=d[0].map(x=>x[0]||'').join('').trim();if(th)return await remember(key,{th,src:d[2]||sl||'auto',via:'online'})}catch{}}
+return offlineWords(q)}
+async function backEn(th){
+if(PBR[th])return PBR[th];
+const key='th>en|'+th,sv=await idb.get('tr',key);
+if(sv&&sv.en)return sv.en;
+const t=await odGet('th','en');
+if(t){try{const en=(await t.translate(th)).trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
+if(online()){try{const d=await gt(th,'th','en'),en=d[0].map(x=>x[0]||'').join('').trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
+return''}
+async function glossOf(w){
+if(LEX[w])return LEX[w];
+const sv=await idb.get('gl',w);
+if(sv&&sv.m)return sv;
+if(online()){try{
+const d=await gt(w,'th','en','&dt=bd'),m=((d[0]&&d[0][0]&&d[0][0][0])||'').trim();
+if(m&&m.toLowerCase()!==w){const a=[];let p='';
+if(d[1]){p=(d[1][0]&&d[1][0][0])||'';d[1].forEach(b=>(b[1]||[]).forEach(x=>{if(x.toLowerCase()!==m.toLowerCase()&&a.length<4&&!a.includes(x))a.push(x)}))}
+const g={m,a,p};idb.put('gl',w,g);return g}}catch{}}
+const t=await odGet('th','en');
+if(t){try{const m=(await t.translate(w)).trim();if(m&&m.toLowerCase()!==w){const g={m,a:[],p:''};idb.put('gl',w,g);return g}}catch{}}
+return null}
+const FU='https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Sarabun:wght@400;700;800&family=Kanit:wght@400;600&family=Prompt:wght@400;600&family=Mitr:wght@400;500&family=Itim&display=swap';
+const fonts={
+async apply(){const m=await idb.get('meta','fontcss');if(!m)return false;let css=m.css;
+for(const u of m.urls){const r=await idb.get('fonts',u);if(!r||!r.b)return false;css=css.split(u).join(URL.createObjectURL(r.b))}
+const s=document.createElement('style');s.id='ff';s.textContent=css;document.head.appendChild(s);return true},
+link(){if($('#ffl'))return;const l=document.createElement('link');l.id='ffl';l.rel='stylesheet';l.href=FU;document.head.appendChild(l)},
+async download(){
+const css=await(await fetch(FU)).text();
+const blocks=[...css.matchAll(/\/\*\s*([\w-]+)\s*\*\/\s*(@font-face\s*\{[^}]*\})/g)].filter(m=>m[1]==='thai'||m[1]==='latin').map(m=>m[2]);
+if(!blocks.length)throw new Error('css');
+const urls=[...new Set(blocks.flatMap(b=>[...b.matchAll(/url\((https:[^)]+)\)/g)].map(m=>m[1])))];
+let done=0,size=0;
+await pool(urls,4,async u=>{const r=await fetch(u);if(!r.ok)throw Object.assign(new Error('font'),{fatal:1});const b=await r.blob();if(!(await idb.put('fonts',u,{b})))throw Object.assign(new Error('store'),{fatal:1});size+=b.size;done++;toast(`Saving fonts ${done}/${urls.length}`)});
+if(done<urls.length)throw new Error('partial');
+await idb.put('meta','fontcss',{css:blocks.join('\n'),urls,size,ts:Date.now()});
+return size}};
+let sel=0,flat=[],R=null,aSeq=0,aT,recT;
+const wordsOf=toks=>{let k=0;const seen=new Set(),ws=[];toks.forEach(t=>{if(!t.sy)return;const i=k;k+=t.sy.length;if(seen.has(t.w))return;seen.add(t.w);ws.push({w:t.w,sy:t.sy,i})});return ws};
+const enHtml=r=>{if(r.src==='en')return'';if(r.en)return`English: ${esc(r.en)}`;const g=r.words.filter(x=>x.g).map(x=>x.g.m);return g.length&&r.words.every(x=>x.g!==undefined)?`Word by word: ${esc(g.join(' · '))}`:''};
+const wc=x=>{const g=x.g,on=sel>=x.i&&sel<x.i+x.sy.length;
+return`<div class="wc${on?' on':''}"><button class="wsel" data-a="wpick" data-v="${esc(x.w)}" aria-pressed="${on}"><div class="th" style="font-size:1.9rem;font-weight:800;line-height:1.2">${esc(x.w)}</div><div style="font-weight:600">${esc(x.sy.map(s=>s.rom).join('-'))}</div><div class="wtones">${x.sy.map(s=>`<span class="tg t-${s.tone}">${T[s.tone][0]} ${T[s.tone][1]}</span>`).join('')}</div></button><div class="wm">${g?esc(g.m):'…'}</div>${g&&g.a&&g.a.length?`<div class="wa">${g.a.map(esc).join(' · ')}</div>`:''}${g&&g.p?`<div class="wa">${esc(g.p)}</div>`:''}<div class="row"><button class="btn ic" data-a="wspk" data-v="${esc(x.w)}" aria-label="Play ${esc(x.w)}">&#9835;</button><button class="btn sm" data-a="wadd" data-v="${esc(x.w)}">Add to review</button></div></div>`};
+function renderWords(){
+const el=$('#a-words');if(!el||!R||!R.words)return;
+const ok=R.words.filter(x=>x.g!==false),no=R.words.filter(x=>x.g===false);
+el.innerHTML=(ok.length?`<div class="wgrid">${ok.map(wc).join('')}</div>`:'')+(no.length?`<p class="wa" style="margin-top:10px">No dictionary meaning found for: ${no.map(x=>`<span class="th">${esc(x.w)}</span>`).join(' · ')}</p>`:'')}
+function view(){
+const out=$('#a-out');
+if(!R){out.innerHTML='<div class="empty card">Type anything above. Thai is analyzed right away, other languages are translated to Thai first.</div>';return}
+if(R.err){out.innerHTML=`<div class="empty card">${R.err===2?'No Thai letters found in the result.':`Could not translate this text${online()?'':' while offline'}. Connect once, or download the on-device translator in the Offline tab. Words and phrases already saved, the built-in phrasebook and single English words work without a connection.`}</div>`;return}
+const r=R,fl=r.flat,s=fl[sel]||fl[0];
 let k=0;
-const strip=toks.map(t=>t.x?`<span class="th" style="align-self:center">${esc(t.x)}</span>`:`<div class="wd">${t.sy.map(s=>{const i=k++;return`<button class="sy t-${s.tone}" data-a="pick" data-v="${i}" aria-pressed="${i===sel}"><div class="g">${esc(s.txt)}</div><div class="r">${esc(s.rom)}</div><div class="n">${T[s.tone][0]} ${T[s.tone][1]}</div></button>`}).join('')}</div>`).join('');
-const s=flat[sel];
-out.innerHTML=`<div class="card hero">${contour(flat.map(x=>x.tone),sel)}</div>
+const strip=r.toks.map(t=>t.x?`<span class="th" style="align-self:center">${esc(t.x)}</span>`:`<div class="wd">${t.sy.map(y=>{const i=k++;return`<button class="sy t-${y.tone}" data-a="pick" data-v="${i}" aria-pressed="${i===sel}"><div class="g">${esc(y.txt)}</div><div class="r">${esc(y.rom)}</div><div class="n">${T[y.tone][0]} ${T[y.tone][1]}</div></button>`}).join('')}</div>`).join('');
+const rom=r.toks.map(t=>t.x||t.sy.map(y=>y.rom).join('-')).join(' ');
+out.innerHTML=`<div class="card"><div class="row" style="margin-bottom:10px"><span class="pill">${r.src==='th'?'Thai':esc(langName(r.src))+' → Thai'}</span><span class="pill">${esc(VIA[r.via]||r.via)}</span></div>${r.src!=='th'?`<div class="wa" style="margin-bottom:6px">${esc(r.input)}</div>`:''}<div class="thbig th">${esc(r.th)}</div><div style="font-weight:600;margin-top:4px">${esc(rom)}</div><div class="wa" id="a-en" style="margin-top:6px">${enHtml(r)}</div><div class="row" style="margin-top:12px"><button class="btn ic" data-a="spkall" aria-label="Play sentence">&#9835;</button><button class="btn sm" data-a="cpth">Copy Thai</button><button class="btn sm" data-a="copyrom">Copy romanization</button><button class="btn sm" data-a="addall">Add all to review</button></div></div>
+<h3 style="margin:20px 0 10px">Word breakdown</h3><div id="a-words"></div>
+<h3 style="margin:20px 0 10px">Tone contour</h3><div class="card hero">${contour(fl.map(x=>x.tone),sel)}</div>
 <div class="syls">${strip}</div>
-<div class="card t-${s.tone}"><div class="row" style="justify-content:space-between"><div class="th" style="font-size:2.2rem;font-weight:800">${esc(s.txt)}</div><div class="row"><button class="btn ic" data-a="spkone" aria-label="Play syllable">&#9835;</button><button class="btn sm" data-a="spkall">Play all</button><button class="btn sm" data-a="addall">Add to review</button><button class="btn sm" data-a="copyrom">Copy romanization</button></div></div>
+<div class="card t-${s.tone}"><div class="row" style="justify-content:space-between"><div class="th" style="font-size:2.2rem;font-weight:800">${esc(s.txt)}</div><div class="row"><button class="btn ic" data-a="spkone" aria-label="Play syllable">&#9835;</button></div></div>
 <dl class="tr" style="margin-top:12px"><dt>Initial</dt><dd><b class="th">${esc(s.init)}</b> · ${s.cl} class${s.why?`<br><span style="color:var(--mu)">${esc(s.why)}</span>`:''}</dd>
 <dt>Vowel</dt><dd>${esc(s.vr)} · ${s.len?'long':'short'}${s.lead?` (written with ${s.lead})`:''}</dd>
 <dt>Ending</dt><dd>${s.fin?`<b class="th">${s.fin}</b> → ${s.fm||'silent'}`:'none'} · ${s.live?'live':'dead'} syllable</dd>
 <dt>Tone mark</dt><dd>${s.mk?`${MK[s.mk]} <span class="th">${s.mk}</span>`:'none'}</dd></dl>
 <div class="res">${T[s.tone][0]} ${T[s.tone][1]} · <span class="th">${T[s.tone][2]}</span></div>
-<div style="color:var(--mu)">${esc(ruleText(s.cl,s.mk,s.live,s.len,s.tone))}</div></div>`}
+<div style="color:var(--mu)">${esc(ruleText(s.cl,s.mk,s.live,s.len,s.tone))}</div></div>`;
+renderWords()}
+function updEn(){const e=$('#a-en');if(e&&R&&R.words)e.innerHTML=enHtml(R)}
+async function build(input,res,my){
+const toks=parse(res.th),fl=toks.flatMap(t=>t.sy||[]);
+if(my!==aSeq)return false;
+if(!fl.length){R={err:2};view();return false}
+const r=R={input,th:res.th,src:res.src,via:res.via,en:res.src==='en'?input:(res.en||''),toks,flat:fl,words:wordsOf(toks),committed:false};
+flat=fl;sel=0;view();
+if(!r.en&&r.src!=='en')backEn(r.th).then(en=>{if(r!==R||!en)return;r.en=en;updEn();if(r.committed)hist.save(r)});
+pool(r.words,4,async x=>{const g=await glossOf(x.w);if(r!==R)return;x.g=g||false;renderWords()}).then(()=>{if(r===R)updEn()});
+return true}
+async function analyze(now){
+const raw=$('#a-in').value.trim(),my=++aSeq;
+clearTimeout(recT);
+if(!raw){R=null;flat=[];view();return}
+const text=raw.slice(0,1000);
+let ok;
+if(isTh(text))ok=await build(text,{th:text,src:'th',via:'thai'},my);
+else{
+$('#a-out').innerHTML='<div class="empty card">Translating…</div>';
+const res=await toThai(text);
+if(my!==aSeq)return;
+if(!res){R={err:1};view();return}
+ok=await build(text,res,my)}
+if(!ok||my!==aSeq)return;
+if(now)commit();else recT=setTimeout(commit,2500)}
+function commit(){
+if(!R||R.err||R.committed)return;
+R.committed=true;hist.save(R,true);log.bump('n');chips()}
+async function openEntry(e){
+$('#a-in').value=e.input;sel=0;const my=++aSeq;clearTimeout(recT);go('analyze');
+if(await build(e.input,{th:e.th,src:e.src,via:'history',en:e.en},my)&&my===aSeq)commit()}
+function chips(){
+const b=(x,t)=>`<button class="btn th" data-a="analyzew" data-v="${esc(x)}">${esc(t||x)}</button>`;
+$('#a-ex').innerHTML=`<span class="wa" style="min-width:90px">Thai</span>`+EX.map(x=>b(x)).join('');
+$('#a-ex2').innerHTML=`<span class="wa" style="min-width:90px">Other languages</span>`+EXS.map(x=>b(x[0])).join('');
+const h=hist.get().slice(0,6);
+$('#a-rc').innerHTML=h.length?`<span class="wa" style="min-width:90px">Recent</span>`+h.map(x=>`<button class="btn" data-a="hopen" data-v="${esc(x.id)}">${esc(x.input.length>24?x.input.slice(0,24)+'…':x.input)}</button>`).join(''):''}
+async function warm(){
+const ws=new Set();hist.get().forEach(e=>parse(e.th).forEach(t=>t.sy&&ws.add(t.w)));
+const L=[...ws];let n=0;
+await pool(L,4,async w=>{await glossOf(w);n++;if(n%5===0)toast(`Saving meanings ${n}/${L.length}`)});
+return L.length}
 const CS={cl:'',mk:'',ty:'',ln:''};
 const CEX={'mid||1':['กา','kaa · crow'],'mid||0':['กบ','gop · frog'],'mid่':['ไก่','gai · chicken'],'mid้':['เก้า','gao · nine'],'mid๊':['โต๊ะ','to · table'],'mid๋':['ตั๋ว','tua · ticket'],'high||1':['ขา','khaa · leg'],'high||0':['สิบ','sip · ten'],'high่':['สี่','sii · four'],'high้':['ห้า','haa · five'],'low||1':['มา','maa · come'],'low||0|0':['รัก','rak · love'],'low||0|1':['พูด','phuut · speak'],'low่':['พี่','phii · older sibling'],'low้':['ม้า','maa · horse']};
 function runCalc(){
@@ -275,7 +453,6 @@ h=`<div class="card sc"><table><thead><tr><th class="l">Class</th>${cols.map(c=>
 if(rTab==='rul'){
 h=[['t-mid','Mid class mirrors the marks','Ek gives low, Tho gives falling, Tri gives high, Chattawa gives rising. No surprises.'],['t-falling','Low class jumps up','Ek gives falling and Tho gives high, one step above what mid class does.'],['t-high','Dead low-class syllables','Short vowel gives high, long vowel gives falling. Every other dead syllable is low.'],['t-rising','High class live syllables','No mark and a live ending gives rising. Think of หมา (dog) and ขา (leg).'],['t-low','Leading ห','ห before ม น ง ว ล ย ร ญ is silent and lifts the syllable to high class: หมา, หนาว, หวาน.'],['t-mid','Leading อ','อ before ย is silent and makes it mid class. Only four words: อยู่ อย่า อยาก อย่าง.'],['t-high','Live or dead','Live means a long vowel, ำ ไ ใ เา, or an ending of น ม ง ย ว. Dead means a short vowel alone or an ending of ก ด บ.']].map(r=>`<div class="rule ${r[0]}"><b>${r[1]}</b><br>${r[2]}</div>`).join('')}
 $('#r-body').innerHTML=h}
-const WS="กา,crow;กบ,frog;ไก่,chicken;เก้า,nine;โต๊ะ,table;ตั๋ว,ticket;ขา,leg;สิบ,ten;สี่,four;ห้า,five;มา,come;รัก,love;พูด,speak;พี่,older sibling;ม้า,horse;คน,person;กิน,eat;ไป,go;ใจ,heart;ข้าว,rice;น้ำ,water;หมา,dog;หวาน,sweet;บ้าน,house;เด็ก,child;ดี,good;ใหม่,new;ร้อน,hot;เย็น,cool;ไทย,Thai;แมว,cat;ปลา,fish;เสือ,tiger;หนาว,cold;ถูก,cheap;แพง,expensive;สวย,pretty;ลูก,offspring;เขา,he or she;เรา,we;ครู,teacher;ตรง,straight;อยู่,stay;ยาก,difficult;ง่าย,easy";
 const WORDS=WS.split(';').map(r=>{const[w,m]=r.split(',');const s=parse(w)[0].sy[0];return{w,m,t:s.tone,rom:s.rom,why:ruleText(s.cl,s.mk,s.live,s.len,s.tone)}});
 const P={mode:'tone',cur:null,ans:true,sc:0,tot:0,st:0,best:store.get('ttm.best',0)};
 const PM=[['tone','Read the tone'],['listen','Listen'],['class','Letter class']];
@@ -294,7 +471,8 @@ function pAns(v){
 if(P.ans||!P.cur)return;P.ans=true;P.tot++;
 const c=P.cur,right=P.mode==='class'?c.cl:c.t,ok=v===right;
 $$('#p-opts .opt').forEach(b=>{b.disabled=true;if(b.dataset.v===right)b.classList.add('ok');else if(b.dataset.v===v)b.classList.add('ng')});
-if(ok){P.sc++;P.st++;if(P.st>P.best){P.best=P.st;store.set('ttm.best',P.best)}}else P.st=0;
+log.bump('a');
+if(ok){log.bump('c');P.sc++;P.st++;if(P.st>P.best){P.best=P.st;store.set('ttm.best',P.best)}}else P.st=0;
 if(P.mode==='class'){$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${c.c}</b> ${c.n} is ${c.cl} class (${c.m.toLowerCase()}).`}
 else{$('#p-q').textContent=c.w;$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b>${c.w}</b> ${esc(c.rom)} (${esc(c.m)}). ${esc(c.why)}.`;srs.add(c.w,T[c.t][0],c.m,ok)}
 pStats();
@@ -318,29 +496,60 @@ const d=srs.get(),c=d[rcur];if(!c)return;
 if(g===0){c.ng++;c.iv=1;c.due=day();rq.push(rcur)}
 else{c.ok++;c.iv=g===1?(c.iv<1?1:c.iv<3?3:Math.round(c.iv*2.2)):Math.max(4,Math.round(Math.max(c.iv,1)*3));c.due=day()+c.iv}
 srs.set(d);rcur=null;runReview()}
-const PH=[['Hello','สวัสดี'],['Thank you','ขอบคุณ'],['How much?','เท่าไหร่'],['Delicious','อร่อย'],['Where is the bathroom?','ห้องน้ำอยู่ที่ไหน'],['Never mind','ไม่เป็นไร'],['I do not understand','ไม่เข้าใจ'],['Not spicy please','ไม่เผ็ด']];
-let lastTr='';
-async function runTr(){
-const q=$('#tr-in').value.trim(),o=$('#tr-out');if(!q){o.hidden=true;return}
-const[sl,tl]=$('#tr-d').value.split('|');o.hidden=false;o.textContent='Translating…';
-try{const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(q)}`);if(!r.ok)throw 0;const d=await r.json();lastTr=d[0].map(x=>x[0]||'').join('').trim();if(!lastTr)throw 0;
-const th=tl==='th';o.innerHTML=`<div class="${th?'th':''}" style="font-size:${th?'2rem':'1.4rem'};font-weight:700">${esc(lastTr)}</div><div class="row" style="margin-top:12px"><button class="btn ic" data-a="spkw" data-v="${esc(lastTr)}" aria-label="Play">&#9835;</button><button class="btn sm" data-a="trcopy">Copy</button>${th?'<button class="btn sm p" data-a="analyzew" data-v="'+esc(lastTr)+'">Analyze tones</button>':''}</div>`}
-catch{o.innerHTML='Translation failed. Check your connection and try again.'}}
-const TABS=[['analyze','Analyze'],['calc','Calculator'],['ref','Reference'],['practice','Practice'],['review','Review'],['translate','Translate']];
+let hQ='';
+function streak(l){let n=0;const d=new Date();for(;;){const k=d.toLocaleDateString('en-CA'),e=l[k];if(e&&(e.n||e.a)){n++;d.setDate(d.getDate()-1)}else if(n===0&&k===dk())d.setDate(d.getDate()-1);else break}return n}
+function histList(){
+const q=hQ.toLowerCase(),L=hist.get().filter(x=>!q||x.input.toLowerCase().includes(q)||x.th.includes(hQ)||(x.en||'').toLowerCase().includes(q));
+$('#h-list').innerHTML=L.length?L.map(x=>`<div class="hi"><div><div class="th" style="font-size:1.3rem;font-weight:700">${esc(x.th)}</div><div>${esc(x.input)} <span class="pill">${x.src==='th'?'Thai':esc(langName(x.src))}</span></div>${x.en&&x.src!=='en'?`<div class="wa">${esc(x.en)}</div>`:''}<div class="wa">${esc(new Date(x.ts).toLocaleString())} · ${x.n} words</div></div><div class="row"><button class="btn sm" data-a="hopen" data-v="${esc(x.id)}">Open</button><button class="btn sm" data-a="hdel" data-v="${esc(x.id)}" aria-label="Delete">✕</button></div></div>`).join(''):`<div class="empty">${hQ?'No match.':'Nothing yet. Analyze something and it is saved here.'}</div>`}
+function runHist(){
+const h=hist.get(),l=log.get();
+let a=0,c=0,n=0;Object.values(l).forEach(e=>{a+=e.a||0;c+=e.c||0;n+=e.n||0});
+const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-13+i);const k=d.toLocaleDateString('en-CA'),e=l[k]||{};return{k,v:(e.n||0)+(e.a||0),n:e.n||0,a:e.a||0}});
+const mx=Math.max(1,...days.map(x=>x.v));
+$('#h-top').innerHTML=`<div class="grid">${[['Analyses',n],['Saved phrases',h.length],['Review words',Object.keys(srs.get()).length],['Practice accuracy',a?Math.round(c/a*100)+'%':'–'],['Day streak',streak(l)]].map(([k,v])=>`<div class="card stat"><b>${v}</b><span>${k}</span></div>`).join('')}</div><div class="card" style="margin-top:12px"><label class="lb">Last 14 days</label><div class="bars" role="img" aria-label="Activity over the last 14 days">${days.map(d=>`<div class="bar" title="${d.k}: ${d.n} analyses, ${d.a} answers" style="height:${Math.max(3,d.v/mx*100)}%"></div>`).join('')}</div></div>`;
+$('#h-q').value=hQ;histList()}
+const mb=n=>(n/1048576).toFixed(1)+' MB';
+async function runOff(){
+const el=$('#o-body');
+el.innerHTML='<div class="empty">Checking…</div>';
+const est=navigator.storage&&navigator.storage.estimate?await navigator.storage.estimate().catch(()=>null):null;
+const per=navigator.storage&&navigator.storage.persisted?await navigator.storage.persisted().catch(()=>false):false;
+const[ntr,ngl,fc]=await Promise.all([idb.count('tr'),idb.count('gl'),idb.get('meta','fontcss')]);
+const pairs=await Promise.all([['en','th'],['th','en']].map(async([s,t])=>({s,t,a:await odAvail(s,t)})));
+const ST={available:'Ready, works offline',downloading:'Downloading…',unsupported:'Not supported in this browser (recent desktop Chrome)',unavailable:'Not available for this language pair'};
+const row=(t,d,b)=>`<div class="orow"><div><b>${t}</b><span class="wa">${d}</span></div><div class="row">${b||''}</div></div>`;
+el.innerHTML=row('Connection',online()?'Online':'Offline')+
+row('Fonts',fc?`Saved on this device (${mb(fc.size||0)})`:'Not saved yet',fc?'<button class="btn sm" data-a="fclr">Remove</button>':'<button class="btn sm p" data-a="fdl">Download</button>')+
+pairs.map(p=>row(`On-device translator ${p.s} → ${p.t}`,p.a==='downloadable'?'Not downloaded yet':ST[p.a]||p.a,p.a==='downloadable'?`<button class="btn sm p" data-a="odl" data-v="${p.s}|${p.t}">Download</button>`:'')).join('')+
+row('Saved translations',`${ntr} saved, reused without a connection`,'<button class="btn sm" data-a="cltr">Clear</button>')+
+row('Saved word meanings',`${ngl} saved besides the ${Object.keys(LEX).length} built-in words`,'<button class="btn sm" data-a="warmh">Save meanings for my history</button><button class="btn sm" data-a="clgl">Clear</button>')+
+row('Built-in phrasebook',`${EXS.length} phrases in several languages`)+
+row('Storage',est&&est.quota?`${mb(est.usage||0)} used of ${mb(est.quota)}. ${per?'Protected from automatic cleanup.':'May be cleaned up by the browser when space is low.'}`:'Not reported by this browser',per?'':'<button class="btn sm" data-a="perst">Protect from cleanup</button>')}
+function net(){const on=online();$('#net').innerHTML=`<i style="background:${on?'var(--t-low)':'var(--t-rising)'}"></i>${on?'Online':'Offline'}`}
+const TABS=[['analyze','Analyze'],['calc','Calculator'],['ref','Reference'],['practice','Practice'],['review','Review'],['history','History'],['offline','Offline']];
 function go(t){
 if(!TABS.some(x=>x[0]===t))t='analyze';
 $$('.panel').forEach(p=>p.classList.toggle('on',p.id==='v-'+t));
 $$('#nav .tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
 if(location.hash!=='#'+t)history.replaceState(null,'','#'+t);
-if(t==='analyze')runAnalyze();if(t==='calc')runCalc();if(t==='ref')runRef();
+if(t==='analyze')view();if(t==='calc')runCalc();if(t==='ref')runRef();
 if(t==='practice'&&P.ans)pNext();if(t==='review')runReview();
+if(t==='history')runHist();if(t==='offline')runOff();
 window.scrollTo(0,0)}
 const cur=()=>$$('.panel.on')[0].id.slice(2);
+const copy=(t,m)=>{navigator.clipboard&&t&&navigator.clipboard.writeText(t).then(()=>toast(m||'Copied'))};
 const A={
-pick(v){sel=+v;runAnalyze()},
-spkone(){spk(flat[sel]&&flat[sel].txt)},spkall(){spk($('#a-in').value)},spkw:v=>spk(v),
-addall(){if(!flat.length)return;parse($('#a-in').value).forEach(t=>t.sy&&srs.add(t.sy.map(s=>s.txt).join(''),T[t.sy[0].tone][0],''));toast('Added to review')},
-copyrom(){navigator.clipboard&&navigator.clipboard.writeText(parse($('#a-in').value).map(t=>t.x||t.sy.map(s=>s.rom).join('-')).join(' ')).then(()=>toast('Copied'))},
+pick(v){sel=+v;view()},
+wpick(v){const w=R&&R.words&&R.words.find(x=>x.w===v);if(w){sel=w.i;view()}},
+wspk:v=>spk(v),
+wadd(v){const x=R&&R.words&&R.words.find(y=>y.w===v);if(x){srs.add(x.w,T[x.sy[0].tone][0],x.g&&x.g.m||'');toast('Added to review')}},
+spkone(){spk(flat[sel]&&flat[sel].txt)},spkall(){spk(R&&R.th)},spkw:v=>spk(v),
+addall(){if(!R||!R.words)return;R.words.forEach(x=>srs.add(x.w,T[x.sy[0].tone][0],x.g&&x.g.m||''));toast('Added to review')},
+copyrom(){if(R&&R.toks)copy(R.toks.map(t=>t.x||t.sy.map(s=>s.rom).join('-')).join(' '))},
+cpth(){copy(R&&R.th)},
+agoo(){analyze(true)},
+aclr(){$('#a-in').value='';sel=0;analyze(true);$('#a-in').focus()},
+analyzew(v){$('#a-in').value=v;sel=0;go('analyze');analyze(true)},
 cset(v,b){const k=b.dataset.k;CS[k]=CS[k]===v?'':v;if(k==='cl'&&v!=='mid'&&'๊๋'.includes(CS.mk))CS.mk='';if(k==='mk'){CS.ty='';CS.ln=''}if(k==='ty')CS.ln='';runCalc()},
 rtab(v){rTab=v;runRef()},
 pmode(v){P.mode=v;$('#p-seg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));pNext()},
@@ -350,15 +559,34 @@ sdel(v){const d=srs.get();delete d[v];srs.set(d);if(rcur===v)rcur=null;rq=rq.fil
 sexp(){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(srs.get(),null,1)],{type:'application/json'})),download:'thai-review.json'});a.click();URL.revokeObjectURL(a.href)},
 simp(){$('#s-file').click()},
 sclr(){if(confirm('Delete every review word?')){srs.set({});rq=[];rcur=null;runReview()}},
-trgo:runTr,trclr(){$('#tr-in').value='';$('#tr-out').hidden=true},trcopy(){navigator.clipboard&&navigator.clipboard.writeText(lastTr).then(()=>toast('Copied'))},
-analyzew(v){$('#a-in').value=v;sel=0;go('analyze')},
-phr(v){$('#tr-d').value='en|th';$('#tr-in').value=v;runTr()}};
+hopen(v){const e=hist.get().find(x=>x.id===v);if(e)openEntry(e)},
+hdel(v){hist.set(hist.get().filter(x=>x.id!==v));runHist();chips()},
+hclr(){if(confirm('Delete all history and activity records?')){hist.set([]);log.set({});runHist();chips()}},
+hexp(){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify({v:1,hist:hist.get(),log:log.get(),srs:srs.get(),best:P.best},null,1)],{type:'application/json'})),download:'thai-tone-master-data.json'});a.click();URL.revokeObjectURL(a.href)},
+himp(){$('#h-file').click()},
+async fdl(){try{toast('Saving fonts…');const n=await fonts.download();toast(`Fonts saved (${mb(n)})`)}catch{toast('Could not save fonts. Check your connection.')}runOff()},
+async fclr(){await idb.del('meta','fontcss');await idb.clear('fonts');toast('Fonts removed');runOff()},
+async odl(v){const[s,t]=v.split('|');toast('Starting download…');const x=await odGet(s,t,true);toast(x?'Language pack ready':'Download failed');runOff()},
+async cltr(){await idb.clear('tr');toast('Saved translations cleared');runOff()},
+async clgl(){await idb.clear('gl');toast('Saved meanings cleared');runOff()},
+async perst(){let ok=false;try{ok=await navigator.storage.persist()}catch{}toast(ok?'Storage protected':'The browser declined');runOff()},
+async warmh(){if(!online())return toast('Connect to the internet to save meanings');toast('Saving meanings…');const n=await warm();toast(`Meanings saved for ${n} words`);runOff()},
+async dlall(){
+toast('Preparing offline data…');
+try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch{}
+await Promise.all([odGet('en','th',true),odGet('th','en',true)]);
+if(online()){
+try{if(!(await idb.get('meta','fontcss')))await fonts.download()}catch{}
+try{await warm()}catch{}}
+toast('Offline data saved');runOff()}};
 document.addEventListener('click',e=>{
 const t=e.target.closest('[data-t]');if(t&&t.closest('#nav'))return go(t.dataset.t);
 const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b.dataset.v,b)});
 document.addEventListener('input',e=>{
-if(e.target.id==='a-in'){sel=0;runAnalyze()}
+if(e.target.id==='a-in'){sel=0;clearTimeout(aT);const v=e.target.value.trim();aT=setTimeout(()=>analyze(false),isTh(v)?250:900)}
+if(e.target.id==='h-q'){hQ=e.target.value.trim();histList()}
 if(e.target.id==='r-q'){rQ=e.target.value.trim();const p=e.target.selectionStart;runRef();const n=$('#r-q');n.focus();n.setSelectionRange(p,p)}});
+$('#a-in').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();clearTimeout(aT);analyze(true)}});
 document.addEventListener('keydown',e=>{
 if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
 const v=cur();
@@ -368,17 +596,31 @@ $('#s-file').addEventListener('change',e=>{
 const f=e.target.files[0];if(!f)return;const r=new FileReader();
 r.onload=()=>{try{const inc=JSON.parse(r.result),d=srs.get();let n=0;Object.values(inc).forEach(c=>{if(!c||typeof c.w!=='string')return;const x=d[c.w];if(x){x.ok+=c.ok||0;x.ng+=c.ng||0;x.iv=Math.max(x.iv,c.iv||0)}else d[c.w]={w:c.w,t:c.t||'',m:c.m||'',iv:c.iv||0,due:c.due||day(),ok:c.ok||0,ng:c.ng||0};n++});srs.set(d);runReview();toast(`Merged ${n} words`)}catch{toast('That file is not a valid review export')}};
 r.readAsText(f);e.target.value=''});
+$('#h-file').addEventListener('change',e=>{
+const f=e.target.files[0];if(!f)return;const r=new FileReader();
+r.onload=()=>{try{
+const d=JSON.parse(r.result),m=new Map(hist.get().map(x=>[x.id,x]));
+(d.hist||[]).forEach(x=>{if(x&&x.id&&x.th){const o=m.get(x.id);if(!o||(x.ts||0)>o.ts)m.set(x.id,{...x,ts:x.ts||Date.now()})}});
+hist.set([...m.values()].sort((a,b)=>b.ts-a.ts).slice(0,500));
+const l=log.get();
+Object.entries(d.log||{}).forEach(([k,v])=>{const z=l[k]||(l[k]={n:0,a:0,c:0});['n','a','c'].forEach(p=>{z[p]=Math.max(z[p]||0,(v&&v[p])||0)})});
+log.set(l);
+const s=srs.get();
+Object.values(d.srs||{}).forEach(c=>{if(c&&typeof c.w==='string'&&!s[c.w])s[c.w]={w:c.w,t:c.t||'',m:c.m||'',iv:c.iv||0,due:c.due||day(),ok:c.ok||0,ng:c.ng||0}});
+srs.set(s);badge();runHist();chips();toast('Imported')}catch{toast('That file is not a valid export')}};
+r.readAsText(f);e.target.value=''});
 $('#font').addEventListener('change',e=>{document.documentElement.dataset.font=e.target.value;store.set('ttm.font',e.target.value)});
 function theme(l){document.documentElement.dataset.theme=l?'light':'dark';$('#theme').textContent=l?'Dark':'Light';store.set('ttm.light',l)}
 $('#theme').addEventListener('click',()=>theme(document.documentElement.dataset.theme!=='light'));
 $('#nav').innerHTML=`<div class="brand"><b>ก</b>Tone Master</div>`+TABS.map(([k,l])=>`<button class="tab" role="tab" data-t="${k}">${l}${k==='review'?'<i hidden></i>':''}</button>`).join('');
-$('#a-ex').innerHTML=EX.map(x=>`<button class="btn th" data-a="analyzew" data-v="${x}">${x}</button>`).join('');
 $('#p-seg').innerHTML=PM.map(([k,l])=>`<button role="tab" aria-selected="${k===P.mode}" data-a="pmode" data-v="${k}">${l}</button>`).join('');
-$('#tr-ph').innerHTML=PH.map(([e,t])=>`<button class="tile t-mid" data-a="phr" data-v="${e}"><span><b>${e}</b><small class="th" style="font-size:1rem">${t}</small></span></button>`).join('');
 const sf=store.get('ttm.font','sarabun');$('#font').value=sf;document.documentElement.dataset.font=sf;
 theme(store.get('ttm.light',window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches));
 window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
-badge();go(location.hash.slice(1));
+window.addEventListener('offline',()=>{net();if(cur()==='offline')runOff()});
+window.addEventListener('online',()=>{net();idb.get('meta','fontcss').then(m=>{if(!m)fonts.download().catch(()=>{})});if(cur()==='offline')runOff()});
+(async()=>{let ok=false;try{ok=await fonts.apply()}catch{}if(!ok){fonts.link();if(online())fonts.download().catch(()=>{})}})();
+net();chips();badge();go(location.hash.slice(1));
 </script>
 </body>
 </html>
