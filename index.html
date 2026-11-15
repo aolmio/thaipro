@@ -316,6 +316,15 @@ const online=()=>navigator.onLine!==false;
 async function gt(q,sl,tl,x){
 const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t${x||''}&q=${encodeURIComponent(q)}`,{signal:AbortSignal.timeout?AbortSignal.timeout(9000):undefined});
 if(!r.ok)throw new Error('http');return r.json()}
+let lastErr='';
+async function jget(u){const r=await fetch(u,{signal:AbortSignal.timeout?AbortSignal.timeout(9000):undefined});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+async function mt(q,sl,tl){
+const e=encodeURIComponent(q),tries=[
+async()=>{const d=await jget(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${e}`);return{t:d[0].map(x=>x[0]||'').join('').trim(),s:d[2]||''}},
+async()=>{const d=await jget(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(q.slice(0,480))}&langpair=${sl==='auto'?'Autodetect':sl}|${tl}`);if(d.responseStatus&&Number(d.responseStatus)!==200)throw new Error(String(d.responseDetails||'MyMemory error'));return{t:((d.responseData&&d.responseData.translatedText)||'').trim(),s:(d.responseData&&d.responseData.detectedLanguage)||''}},
+async()=>{const d=await jget(`https://lingva.ml/api/v1/${sl}/${tl}/${e}`);return{t:(d.translation||'').trim(),s:''}}];
+for(const f of tries){try{const r=await f();if(r.t&&r.t.toLowerCase()!==q.toLowerCase())return r}catch(x){lastErr=String((x&&x.message)||x)}}
+return null}
 const OD={};
 const tmo=(p,ms,d)=>Promise.race([Promise.resolve(p),new Promise(r=>setTimeout(()=>r(d),ms))]);
 async function odAvail(sl,tl){if(!('Translator' in self))return'unsupported';try{return await tmo(Translator.availability({sourceLanguage:sl,targetLanguage:tl}),1500,'unavailable')}catch{return'unavailable'}}
@@ -343,7 +352,8 @@ const sv=await idb.get('tr',key);
 if(sv&&sv.th)return{th:sv.th,src:sv.src,via:'saved'};
 const sl=await detect(q);
 if(sl){const t=await odGet(sl,'th');if(t){try{const th=(await tmo(t.translate(q),8000,'')).trim();if(th)return await remember(key,{th,src:sl,via:'device'})}catch{}}}
-if(online()){try{const d=await gt(q,'auto','th'),th=d[0].map(x=>x[0]||'').join('').trim();if(th)return await remember(key,{th,src:d[2]||sl||'auto',via:'online'})}catch{}}
+lastErr='';
+{const r=await mt(q,'auto','th');if(r&&thN(r.t))return await remember(key,{th:r.t,src:r.s||sl||'auto',via:'online'})}
 return offlineWords(q)}
 async function backEn(th){
 if(PBR[th])return PBR[th];
@@ -351,17 +361,18 @@ const key='th>en|'+th,sv=await idb.get('tr',key);
 if(sv&&sv.en)return sv.en;
 const t=await odGet('th','en');
 if(t){try{const en=(await tmo(t.translate(th),8000,'')).trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
-if(online()){try{const d=await gt(th,'th','en'),en=d[0].map(x=>x[0]||'').join('').trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
+{const r=await mt(th,'th','en');if(r){idb.put('tr',key,{en:r.t,ts:Date.now()});return r.t}}
 return''}
 async function glossOf(w){
 if(LEX[w])return LEX[w];
 const sv=await idb.get('gl',w);
 if(sv&&sv.m)return sv;
-if(online()){try{
+{try{
 const d=await gt(w,'th','en','&dt=bd'),m=((d[0]&&d[0][0]&&d[0][0][0])||'').trim();
 if(m&&m.toLowerCase()!==w){const a=[];let p='';
 if(d[1]){p=(d[1][0]&&d[1][0][0])||'';d[1].forEach(b=>(b[1]||[]).forEach(x=>{if(x.toLowerCase()!==m.toLowerCase()&&a.length<4&&!a.includes(x))a.push(x)}))}
 const g={m,a,p};idb.put('gl',w,g);return g}}catch{}}
+{const r=await mt(w,'th','en');if(r&&r.t.toLowerCase()!==w){const g={m:r.t,a:[],p:''};idb.put('gl',w,g);return g}}
 const t=await odGet('th','en');
 if(t){try{const m=(await tmo(t.translate(w),8000,'')).trim();if(m&&m.toLowerCase()!==w){const g={m,a:[],p:''};idb.put('gl',w,g);return g}}catch{}}
 return null}
@@ -396,7 +407,7 @@ el.innerHTML=(ok.length?`<div class="wgrid">${ok.map(wc).join('')}</div>`:'')+(n
 function view(){
 const out=$('#a-out');
 if(!R){out.innerHTML='<div class="empty card">Type anything above. Thai is analyzed right away, other languages are translated to Thai first.</div>';return}
-if(R.err){out.innerHTML=`<div class="empty card">${R.err===2?'No Thai letters found in the result.':`Could not translate this text${online()?'':' while offline'}. Connect once, or download the on-device translator in the Offline tab. Words and phrases already saved, the built-in phrasebook and single English words work without a connection.`}</div>`;return}
+if(R.err){out.innerHTML=`<div class="empty card">${R.err===2?'No Thai letters found in the result.':`Could not translate this text${online()?'':' while offline'}${lastErr?` (${esc(lastErr)})`:''}. Check that your network allows translate.googleapis.com or api.mymemory.translated.net, then try again. You can also connect once, or download the on-device translator in the Offline tab. Words and phrases already saved, the built-in phrasebook and single English words work without a connection.`}</div>`;return}
 const r=R,fl=r.flat,s=fl[sel]||fl[0];
 let k=0;
 const strip=r.toks.map(t=>t.x?`<span class="th" style="align-self:center">${esc(t.x)}</span>`:`<div class="wd">${t.sy.map(y=>{const i=k++;return`<button class="sy t-${y.tone}" data-a="pick" data-v="${i}" aria-pressed="${i===sel}"><div class="g">${esc(y.txt)}</div><div class="r">${esc(fr(y))}</div><div class="n">${T[y.tone][0]} ${T[y.tone][1]}</div></button>`}).join('')}</div>`).join('');
