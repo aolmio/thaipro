@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Thai Tone Master</title>
-<meta name="theme-color" content="#0f1b1d">
+<meta name="theme-color" content="#12141c">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#0f1b1d;--sf:#17282b;--sf2:#203538;--ln:#2f4a4e;--tx:#eaf1ee;--mu:#9bb2ae;--ac:#7fd1c0;--on:#0b1514;--t-mid:#7db4e6;--t-low:#7fd39b;--t-falling:#f07a72;--t-high:#b9a0f2;--t-rising:#f4c457;--thai:'Sarabun',sans-serif}
-[data-theme=light]{--bg:#eef3f0;--sf:#fff;--sf2:#e4ede9;--ln:#c4d4ce;--tx:#12201f;--mu:#52675f;--ac:#0e7a69;--on:#fff;--t-mid:#1b6fb0;--t-low:#12874a;--t-falling:#c93b32;--t-high:#7447d1;--t-rising:#a86f00}
+:root{--bg:#12141c;--sf:#1b1e29;--sf2:#252a38;--ln:#363d50;--tx:#eceef5;--mu:#a0a8bd;--ac:#9bb8ff;--on:#0d1220;--t-mid:#7db4e6;--t-low:#e68ad0;--t-falling:#f07a72;--t-high:#b9a0f2;--t-rising:#f4c457;--thai:'Sarabun',sans-serif}
+[data-theme=light]{--bg:#f1f3f8;--sf:#fff;--sf2:#e6e9f1;--ln:#cdd3e1;--tx:#171a24;--mu:#566078;--ac:#2f5bd8;--on:#fff;--t-mid:#1b6fb0;--t-low:#b02f93;--t-falling:#c93b32;--t-high:#7447d1;--t-rising:#a86f00}
 *{box-sizing:border-box;margin:0}
 body{font:15px/1.55 Figtree,system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased}
 .th{font-family:var(--thai)}
@@ -23,7 +23,7 @@ nav{position:sticky;top:0;height:100vh;padding:20px 12px;border-right:1px solid 
 .tab[aria-selected=true]{background:var(--ac);color:var(--on)}
 .tab i{font-style:normal;font-size:.72rem;background:var(--t-falling);color:#fff;border-radius:9px;padding:0 7px}
 main{padding:22px clamp(16px,4vw,44px) 40px;max-width:1060px;width:100%}
-.top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px}
 h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
 .sub{color:var(--mu);margin-bottom:18px;max-width:66ch}
 .panel{display:none}.panel.on{display:block}
@@ -74,7 +74,7 @@ label.lb{display:block;font-size:.8rem;font-weight:600;color:var(--mu);margin:0 
 .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin:14px 0}
 .opt{cursor:pointer;border:2px solid var(--ln);background:var(--sf2);border-radius:12px;padding:12px 6px;font-weight:700;text-align:center;border-bottom:4px solid var(--c,var(--ln))}
 .opt kbd{display:block;font:600 .7rem Figtree;color:var(--mu)}
-.opt.ok{background:color-mix(in srgb,var(--t-low) 25%,transparent);border-color:var(--t-low)}
+.opt.ok{background:color-mix(in srgb,var(--ac) 25%,transparent);border-color:var(--ac)}
 .opt.ng{background:color-mix(in srgb,var(--t-falling) 25%,transparent);border-color:var(--t-falling)}
 .fb{min-height:48px;text-align:center;font-weight:600}
 .stats{display:flex;gap:18px;justify-content:center;color:var(--mu);font-size:.88rem;flex-wrap:wrap}
@@ -118,7 +118,7 @@ td.l,th.l{text-align:left}
 .ft{cursor:pointer;border:2px solid var(--ln);background:var(--sf2);border-radius:12px;padding:8px 0;font-size:2.4rem;line-height:1.3;text-align:center}
 .ft:hover{border-color:var(--ac)}
 .ft.on{border-color:var(--ac);background:var(--sf)}
-.ft.ok{border-color:var(--t-low);background:color-mix(in srgb,var(--t-low) 25%,transparent);cursor:default}
+.ft.ok{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 25%,transparent);cursor:default}
 .ft.ng{border-color:var(--t-falling);background:color-mix(in srgb,var(--t-falling) 25%,transparent)}
 @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 @keyframes pp{0%{transform:scale(.92);opacity:.4}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
@@ -129,6 +129,13 @@ td.l,th.l{text-align:left}
 .mt .opt.on{border-color:var(--ac);background:var(--sf)}
 .mt .opt.ok{opacity:.55;cursor:default}
 @media (prefers-reduced-motion:reduce){.shake,.pop{animation:none}}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--ac);margin-right:8px}
+.set{position:relative}
+.set summary{list-style:none;cursor:pointer;display:inline-block}
+.set summary::-webkit-details-marker{display:none}
+.setp{position:absolute;right:0;top:calc(100% + 6px);z-index:30;background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px;display:grid;gap:10px;min-width:240px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.setp label{display:grid;gap:4px;font-size:.78rem;color:var(--mu);font-weight:600}
+.setp select{width:100%}
 @media(max-width:760px){
 .app{display:block}
 nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;overflow-x:auto;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--ln);z-index:20;gap:2px}
@@ -141,14 +148,11 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 <div class="app">
 <nav role="tablist" aria-label="Sections" id="nav"></nav>
 <main>
-<div class="top">
-<span class="pill" id="net"></span>
-<select id="rsys" aria-label="Romanization system"><option value="simple">Simple</option><option value="pai">Paiboon+</option><option value="ipa">IPA</option><option value="rtgs">RTGS</option></select>
-<select id="spd" aria-label="Speech speed"><option value="1">1.0x</option><option value="0.85">0.85x</option><option value="0.75">0.75x</option><option value="0.5">0.5x</option></select>
-<button class="btn" id="cbt" aria-pressed="false" aria-label="Tone patterns for color blindness">Patterns</button>
-<select id="font" aria-label="Thai font"></select>
-<button class="btn" id="theme" aria-label="Toggle theme">Light</button>
-</div>
+<div class="top"><details class="set"><summary class="btn"><i id="nd" class="dot"></i>Settings</summary><div class="setp"><span class="pill" id="net"></span>
+<label>Romanization<select id="rsys" aria-label="Romanization system"><option value="simple">Simple</option><option value="pai">Paiboon+</option><option value="ipa">IPA</option><option value="rtgs">RTGS</option></select></label>
+<label>Speech speed<select id="spd" aria-label="Speech speed"><option value="1">1.0x</option><option value="0.85">0.85x</option><option value="0.75">0.75x</option><option value="0.5">0.5x</option></select></label>
+<label>Thai font<select id="font" aria-label="Thai font"></select></label>
+<div class="row"><button class="btn sm" id="cbt" aria-pressed="false" aria-label="Tone patterns for color blindness">Patterns</button><button class="btn sm" id="theme" aria-label="Toggle theme">Light</button></div></div></details></div>
 
 <section class="panel" id="v-analyze">
 <h2>Analyze</h2>
@@ -399,7 +403,10 @@ const t=await odGet('th','en');
 if(t){try{const en=(await tmo(t.translate(th),8000,'')).trim();if(en){idb.put('tr',key,{en,ts:Date.now()});return en}}catch{}}
 {const r=await mt(th,'th','en');if(r){idb.put('tr',key,{en:r.t,ts:Date.now()});return r.t}}
 return''}
-const BASE_SRC=[{id:'thcore',name:'thcore tone.json (GitHub aolmio/thcore)',urls:['https://raw.githubusercontent.com/aolmio/thcore/main/tone.json','https://cdn.jsdelivr.net/gh/aolmio/thcore@main/tone.json']}];
+const BASE_SRC=[
+{id:'thcore',name:'thcore tone.json (GitHub aolmio/thcore)',urls:['https://raw.githubusercontent.com/aolmio/thcore/main/tone.json','https://cdn.jsdelivr.net/gh/aolmio/thcore@main/tone.json']},
+{id:'arn',name:'LEXiTRON top 5000 words (GitHub amornj/arn-thai)',urls:['https://raw.githubusercontent.com/amornj/arn-thai/main/thai_words.json','https://cdn.jsdelivr.net/gh/amornj/arn-thai@main/thai_words.json']},
+{id:'wpn',name:'Thai loanword dictionary, CC-BY 4.0 (GitHub wannaphong)',urls:['https://raw.githubusercontent.com/wannaphong/thai-english-transliteration-dictionary/main/dict.tsv','https://cdn.jsdelivr.net/gh/wannaphong/thai-english-transliteration-dictionary@main/dict.tsv']}];
 const sources=()=>BASE_SRC.concat(store.get('ttm.src',[]).map(x=>({...x,user:true})));
 const THW=/^[ก-ฺเ-๎]+$/;
 const pk=(o,ks)=>{for(const k of ks){const v=o[k];if(v!=null&&String(v).trim()!=='')return String(v)}return''};
@@ -409,17 +416,21 @@ if(!Array.isArray(arr)&&data&&typeof data==='object')arr=Object.entries(data).ma
 if(!Array.isArray(arr))return[];
 const out=[];
 arr.forEach(o=>{
-if(Array.isArray(o))o={thai:o[0],meaning:o[1],transliteration:o[2]};
+if(Array.isArray(o))o={thai:o[0],meaning:o[1],transliteration:/^(true|false|none)$/i.test(o[2]||'')?'':o[2]};
+if(o&&String(o.check).toLowerCase()==='false')return;
 if(!o||typeof o!=='object')return;
 const w=pk(o,['thai','word','th','Thai','headword','entry','w']).trim().split(/[(),;/]/)[0].trim();
 if(!THW.test(w))return;
-const parts=pk(o,['meaning','english','en','definition','gloss','translation','m']).replace(/[^\x20-\x7EÀ-ɏ]/g,'').split(/\s*[\/;]\s*/).map(x=>x.trim()).filter(Boolean);
+const parts=pk(o,['meaning','english','en','definition','gloss','translation','m']).replace(/[^\x20-\x7EÀ-ɏ]/g,'').split(/\s*[\/;,]\s*/).map(x=>x.replace(/^\([^)]*\)\s*/,'').trim().slice(0,60)).filter(Boolean);
 if(!parts.length)return;
 out.push({w,m:parts[0],a:parts.slice(1,3),r:pk(o,['transliteration','romanization','roman','rom','pronunciation']).split('•')[0].trim()})});
 return out}
+
 function parseTable(txt){
 const lines=txt.split(/\r?\n/).filter(l=>l.trim()),sep=lines[0]&&lines[0].includes('\t')?'\t':',';
-return lines.map(l=>l.split(sep).map(c=>c.replace(/^"|"$/g,'').trim()))}
+const rows=lines.map(l=>l.split(sep).map(c=>c.replace(/^"|"$/g,'').trim()));
+if(rows.length>1&&rows[0].length>1&&!/[฀-๿]/.test(rows[0].join(''))){const h=rows[0].map(x=>x.toLowerCase());return rows.slice(1).map(r=>{const o={};h.forEach((k,i)=>{o[k]=r[i]});return o})}
+return rows}
 async function packGet(src){
 let err;
 for(const u of src.urls||[]){
@@ -435,7 +446,7 @@ throw err||new Error('no source address')}
 async function packSave(src,ents,url,total){
 const map=new Map();
 ents.forEach(e=>{const o=map.get(e.w);if(!o)map.set(e.w,{m:e.m,a:e.a.slice(),r:e.r,s:src.id});else if(e.m!==o.m&&o.a.length<3&&!o.a.includes(e.m))o.a.push(e.m)});
-const rows=[...map.entries()];
+const rows=[...map.entries()].map(([k,v])=>{const ex=DM.get(k);if(ex&&ex.s&&ex.s!==src.id){const a=[...new Set([...(ex.a||[]),v.m,...v.a].filter(x=>x&&x!==ex.m))].slice(0,3);return[k,{...ex,a,r:ex.r||v.r}]}return[k,v]});
 if(!(await idb.putMany('dict',rows)))throw new Error('could not store the words');
 rows.forEach(([k,v])=>DM.set(k,v));
 await idb.put('meta','pack:'+src.id,{n:rows.length,total,ts:Date.now(),url});
@@ -666,15 +677,17 @@ BADGES.forEach(b=>{if(!g.bd[b[0]]&&b[3](g)){g.bd[b[0]]=k;msgs.push('Badge: '+b[1
 store.set('ttm.g',g);log.bump('g');
 if(msgs.length)toast(msgs.join(' · '));
 return g}
+
 function profHtml(){
 const g=gstate(),L=lvl(g.xp),td=g.days[dk()]||0,st=streak(log.get());
-return`<div class="card"><div class="row" style="justify-content:space-between"><b style="font-size:1.2rem">Level ${L.l}</b><span class="wa">${g.xp} XP · streak ${st} day${st===1?'':'s'} · best combo ${g.best.combo}</span></div><div class="pg" role="progressbar" aria-valuenow="${L.cur}" aria-valuemax="${L.need}"><i style="width:${L.cur/L.need*100}%"></i></div><div class="wa">${L.need-L.cur} XP to level ${L.l+1}</div><div class="wa" style="margin-top:8px">Daily goal ${Math.min(td,GOAL)}/${GOAL} XP${td>=GOAL?' · done':''}</div><div class="pg"><i style="width:${Math.min(100,td/GOAL*100)}%;background:var(--t-low)"></i></div></div>`}
+return`<div class="row" style="gap:14px;margin-bottom:12px"><b>Lv ${L.l}</b><div style="flex:1;min-width:120px"><div class="pg" style="margin:0" role="progressbar" aria-valuenow="${L.cur}" aria-valuemax="${L.need}"><i style="width:${L.cur/L.need*100}%"></i></div></div><span class="wa">${g.xp} XP · ${Math.min(td,GOAL)}/${GOAL} today${td>=GOAL?' ✓':''} · ${st} day streak</span></div>`}
+
 function mapHtml(){
 const g=gstate();
 const tiles=RK.map(r=>{const k=rkey(r),m=g.mast[k]||0,st=Math.min(3,Math.floor(m/2)),t=rtone(r);return`<div class="tile t-${t}" style="${g.disc[k]||m?'':'opacity:.45'}"><span><b>${esc(rlabel(r))}</b><small>${'★'.repeat(st)}${'☆'.repeat(3-st)} · ${T[t][1]}</small></span></div>`}).join('');
 const got=BADGES.filter(b=>g.bd[b[0]]).length;
 const bs=BADGES.map(b=>`<span class="pill" style="${g.bd[b[0]]?'':'opacity:.4'}" title="${esc(b[2])}">${g.bd[b[0]]?'★ ':''}${esc(b[1])}</span>`).join('');
-return`<h3 style="margin:20px 0 10px">Rule mastery</h3><div class="grid">${tiles}</div><h3 style="margin:20px 0 10px">Badges ${got}/${BADGES.length}</h3><div class="row">${bs}</div><p class="wa" style="margin-top:10px">Stars grow with right answers on a rule and drop with wrong ones. Weak rules come up more often in Challenge, Blitz and Match.</p>`}
+return`<details style="margin-top:18px"><summary class="btn sm" style="display:inline-block;cursor:pointer">Rule mastery and badges (${got}/${BADGES.length})</summary><div class="grid" style="margin-top:12px">${tiles}</div><div class="row" style="margin-top:12px">${bs}</div><p class="wa" style="margin-top:10px">Stars grow with right answers on a rule and drop with wrong ones. Weak rules come up more often in Challenge, Blitz and Match.</p></details>`}
 const hintText=r=>r[0]==='mid'?(r[1]?'Mid class: each mark has its own tone. Ek, Tho, Tri, Chattawa in order give low, falling, high, rising.':'Mid class without a mark: live is mid, dead is low.'):r[0]==='high'?(r[1]?'High class with a mark: Ek gives low and Tho gives falling, like mid class.':'High class without a mark: live rises, dead is low.'):(r[1]?'Low class with a mark: Ek gives falling, Tho gives high.':'Low class without a mark: live is mid. Dead short is high, dead long is falling.');
 const CH={m:'explore',cur:null,ans:true,combo:0,sc:0,tot:0,hint:false,left:60,iv:null,run:false,end:0,fb:null,seq:0,bc:0,xp:0,res:null,mt:null};
 function cstop(){clearInterval(CH.iv);CH.iv=null}
@@ -749,7 +762,7 @@ if(!ready){$('#c-res').innerHTML='<div class="empty">Answer the steps to see the
 const live=CS.ty==='1',len=+CS.ln,t=toneOf(CS.cl,mk,live,len);
 const key=mk?CS.cl+mk:CS.cl+'||'+(live?1:0)+(CS.cl==='low'&&!live?'|'+len:''),ex=CEX[key];
 const fresh=!gstate().disc[key];
-if(fresh){award(3,{disc:key});toast('New rule discovered +3 XP');$('#c-prof').innerHTML=profHtml();$('#c-map').innerHTML=mapHtml()}
+if(fresh){award(3,{disc:key});$('#c-prof').innerHTML=profHtml();$('#c-map').innerHTML=mapHtml()}
 $('#c-res').innerHTML=`<div class="pop t-${t}"><div class="res" style="margin:0">${T[t][0]} ${T[t][1]} · <span class="th">${T[t][2]}</span></div><div style="color:var(--mu);margin:6px 0 12px">${esc(ruleText(CS.cl,mk,live,len,t))}</div>${contour([t])}${ex?`<div class="row" style="margin-top:12px"><span class="th" style="font-size:2.4rem;font-weight:800">${ex[0]}</span><span style="color:var(--mu)">${ex[1]}</span><button class="btn ic" data-a="spkw" data-v="${ex[0]}" aria-label="Play">&#9835;</button><button class="btn sm" data-a="analyzew" data-v="${ex[0]}">Analyze</button></div>`:''}</div>`}
 function runCalc(){
 $('#c-prof').innerHTML=profHtml();
@@ -766,42 +779,52 @@ el.innerHTML=ids.map(id=>{const f=FM[id],g=genOf(id);return`<div class="card" st
 function fView(){
 $('#f-body').innerHTML=`<div class="card"><label class="lb" for="f-txt">Your text</label><input id="f-txt" type="text" value="${esc(F.txt)}"><div class="row" style="margin-top:10px">${[['all','All'],['looped','Looped'],['loopless','Loopless'],['other','Display']].map(([k,l])=>`<button class="btn sm${F.flt===k?' sel':''}" data-a="fflt" data-v="${k}">${l}</button>`).join('')}</div></div><div id="f-list" style="margin-top:12px"></div><p class="sub" style="margin-top:12px">Looped or loopless labels follow each font's known design. If you disagree with one, flip it and the games use your choice.</p>`;
 fList();fonts.need(FL.map(f=>f[0])).then(fList)}
+
+const PAIRS={notosans:'notolooped',notolooped:'notosans',plex:'plexlooped',plexlooped:'plex'};
+const FR=10;
 function runFonts(){
-$('#f-seg').innerHTML=[['view','Compare'],['sort','Sort game'],['odd','Odd one out']].map(([k,l])=>`<button role="tab" aria-selected="${k===F.m}" data-a="ftab" data-v="${k}">${l}</button>`).join('');
+$('#f-seg').innerHTML=[['view','Compare'],['g1','Headless shown: find head'],['g2','Head shown: find headless']].map(([k,l])=>`<button role="tab" aria-selected="${k===F.m}" data-a="ftab" data-v="${k}">${l}</button>`).join('');
 if(F.m==='view'){F.seq++;return fView()}
-$('#f-body').innerHTML=`<div id="f-prof">${profHtml()}</div><div class="card" style="margin-top:12px" id="f-game"></div>`;
+F.round=0;F.sc=0;F.tot=0;F.st=0;
+$('#f-body').innerHTML='<div class="card" id="f-game"></div>';
 fNext()}
+function fScore(){const e=$('#f-sc');if(e)e.textContent=`Score ${F.sc}/${F.tot} · Streak ${F.st}`}
 async function fNext(){
-const my=++F.seq;F.cur=null;F.ans=false;
-const box=$('#f-game');if(!box)return;
+const my=++F.seq,box=$('#f-game');if(!box)return;
+if(F.round>=FR){fEnd();return}
+F.cur=null;F.ans=false;
 box.innerHTML='<div class="empty">Loading fonts…</div>';
-const A1=Math.random()<.5?'looped':'loopless',B1=A1==='looped'?'loopless':'looped',w=pick(FW);
-let html;
-if(F.m==='sort'){
-const[id]=await fontPool(A1,1);if(my!==F.seq)return;
-if(!id){box.innerHTML=fMsg();return}
-F.cur={id,w,a:A1,b:B1};
-html=`<div style="font-family:${fam(id)};font-weight:700;font-size:clamp(3rem,10vw,5rem);line-height:1.3;text-align:center;padding:8px 0">${esc(w)}</div><div class="sub" style="text-align:center">Is this font looped or loopless?</div><div class="row" style="justify-content:center;margin-top:12px"><button class="opt" data-a="fans" data-v="looped" style="min-width:150px"><kbd>1</kbd>Looped (traditional)</button><button class="opt" data-a="fans" data-v="loopless" style="min-width:150px"><kbd>2</kbd>Loopless (modern)</button></div>`}
-else{
-const a=await fontPool(A1,5),b=await fontPool(B1,1);if(my!==F.seq)return;
-if(a.length<3||!b.length){box.innerHTML=fMsg();return}
-const tiles=shuffle([...a.slice(0,5).map(id=>({id,odd:0})),{id:b[0],odd:1}]);
-F.cur={w,tiles,a:A1,b:B1,odd:b[0],others:a.slice(0,5)};
-html=`<div class="sub" style="text-align:center">One font is different. Tap the odd one out.</div><div class="fgc" style="margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">${tiles.map(t=>`<button class="ft" data-a="fans" data-v="${t.id}" style="font-family:${fam(t.id)}">${esc(w)}</button>`).join('')}</div>`}
-box.innerHTML=html+`<div id="f-fb" class="wa" style="margin-top:14px;text-align:center" aria-live="polite"></div><div class="row" style="justify-content:center;margin-top:10px"><button class="btn p" id="f-nx" data-a="fnext" hidden>Next (Enter)</button></div><div class="row" style="justify-content:center;margin-top:10px"><span class="wa" id="f-sc"></span></div>`;
+const a=F.m==='g1'?'loopless':'looped',b=a==='looped'?'loopless':'looped',w=pick(FW);
+const sh=await fontPool(a,6),co=await fontPool(b,1);
+if(my!==F.seq)return;
+if(sh.length<3||!co.length){box.innerHTML=fMsg();return}
+let ans=co[0];const pr=PAIRS[sh[0]];
+if(pr&&genOf(pr)===b&&Math.random()<.5){await fonts.need([pr]);if(await fonts.ready(pr))ans=pr}
+if(my!==F.seq)return;
+const opts=shuffle([ans,...sh.slice(1,6)]);
+F.cur={w,ans,shown:sh[0],opts,a,b};F.round++;
+box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="wa">Round ${F.round} of ${FR}</span><span class="wa" id="f-sc"></span></div><div class="pg"><i style="width:${(F.round-1)/FR*100}%"></i></div>
+<div class="wa" style="text-align:center">${a==='loopless'?'This text is in a headless font':'This text is in a font with heads'}</div>
+<div style="font-family:${fam(sh[0])};font-weight:700;font-size:clamp(3rem,10vw,5rem);line-height:1.3;text-align:center;padding:6px 0">${esc(w)}</div>
+<div class="sub" style="text-align:center">${b==='looped'?'Tap the same text in a font with heads (looped).':'Tap the same text in a headless font.'}</div>
+<div class="fgc" style="margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">${opts.map((id,i)=>`<button class="ft" data-a="fans" data-v="${id}" style="font-family:${fam(id)}">${esc(w)}<small style="display:block;font:600 .7rem Figtree;color:var(--mu)">${i+1}</small></button>`).join('')}</div>
+<div id="f-fb" class="wa" style="margin-top:14px;text-align:center" aria-live="polite"></div>
+<div class="row" style="justify-content:center;margin-top:10px"><button class="btn p" id="f-nx" data-a="fnext" hidden>${F.round>=FR?'See result':'Next (Enter)'}</button></div>`;
 fScore()}
-function fScore(){const e=$('#f-sc');if(e)e.textContent=`Score ${F.sc}/${F.tot} · Streak ${F.st} · Best ${F.best}`}
 function fAns(v){
 if(F.ans||!F.cur)return;F.ans=true;F.tot++;
-const c=F.cur,sort=F.m==='sort',ok=sort?v===genOf(c.id):v===c.odd;
-$$('#f-game .opt,#f-game .ft').forEach(b=>{b.disabled=true;const right=sort?genOf(c.id):c.odd;if(b.dataset.v===right)b.classList.add('ok');else if(b.dataset.v===v)b.classList.add('ng')});
-if(ok){F.sc++;F.st++;if(F.st>F.best){F.best=F.st;store.set('ttm.fbest',F.best)}}else F.st=0;
+const c=F.cur,ok=v===c.ans;
+$$('#f-game .ft').forEach(b=>{b.disabled=true;b.insertAdjacentHTML('beforeend',`<small style="display:block;font:600 .7rem Figtree;color:var(--mu)">${esc(FM[b.dataset.v].fam)}</small>`);if(b.dataset.v===c.ans)b.classList.add('ok');else if(b.dataset.v===v)b.classList.add('ng')});
+if(ok){F.sc++;F.st++}else F.st=0;
 award(ok?8:1,{ok,font:1,combo:F.st});
-const tip=sort?(genOf(c.id)==='looped'?'Look for the small loop at the head of letters like ก ค ช ม.':'The heads are open or cut straight, like modern sans-serif Thai.'):`${esc(FM[c.odd].fam)} is ${c.b}. The others are ${c.a}: ${c.others.map(i=>esc(FM[i].fam)).join(', ')}.`;
-$('#f-fb').innerHTML=`${ok?'Correct':'Not quite'}: ${sort?`<b>${esc(FM[c.id].fam)}</b> is ${genOf(c.id)}. `:''}${tip}`;
+$('#f-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b>${esc(FM[c.ans].fam)}</b> is ${c.b}. ${c.opts.filter(i=>i!==c.ans).map(i=>esc(FM[i].fam)).join(', ')} ${c.opts.length>2?'are':'is'} ${c.a}.`;
 $('#f-nx').hidden=false;fScore();
-const pr=$('#f-prof');if(pr)pr.innerHTML=profHtml();
-const q=F.seq;if(ok)setTimeout(()=>{if(q===F.seq&&F.ans&&cur()==='fonts')fNext()},1800)}
+const q=F.seq;if(ok&&F.round<FR)setTimeout(()=>{if(q===F.seq&&F.ans&&cur()==='fonts')fNext()},1600)}
+function fEnd(){
+const nb=F.sc>F.best;if(nb){F.best=F.sc;store.set('ttm.fbest',F.best)}
+const bonus=F.sc>=8?10:F.sc>=5?5:2;award(bonus,{});
+$('#f-game').innerHTML=`<div class="pop" style="text-align:center"><div class="big" style="font-size:3rem">${F.sc}/${FR}</div><div class="sub">${F.sc>=8?'Sharp eyes':F.sc>=5?'Getting there':'Keep looking at the heads of the letters'} · +${bonus} XP${nb?' · new best':''} · best ${F.best}</div><div class="row" style="justify-content:center;margin-top:14px"><button class="btn p" data-a="fagain">Play again</button></div></div>`}
+
 async function packDrop(id){
 const rows=await idb.all('dict'),ks=rows.filter(r=>r[1]&&r[1].s===id).map(r=>r[0]);
 if(ks.length)await idb.tx('dict','readwrite',o=>{ks.forEach(k=>o.delete(k))});
@@ -854,7 +877,7 @@ pStats()}
 const MPS="คา,to be stuck;ข่า,galangal;ค่า,value;ค้า,to trade;ขา,leg|เสือ,tiger;เสื่อ,mat;เสื้อ,shirt|ไหม,silk;ใหม่,new;ไม่,not;ไม้,wood|ใกล้,near;ไกล,far|ขาว,white;ข่าว,news;ข้าว,rice|หมา,dog;ม้า,horse;มา,come";
 const MP=MPS.split('|').map(g=>g.split(';').map(x=>{const[w,m]=x.split(','),s=parse(w)[0].sy[0];return{w,m,t:s.tone,s}}));
 const P={mode:'tone',cur:null,ans:true,sc:0,tot:0,st:0,best:store.get('ttm.best',0)};
-const PM=[['tone','Read the tone'],['listen','Listen'],['pairs','Minimal pairs'],['class','Letter class'],['net','Internet words'],['fq1','Font quiz: find modern'],['fq2','Font quiz: find normal']];
+const PM=[['tone','Read the tone'],['listen','Listen'],['pairs','Minimal pairs'],['class','Letter class'],['net','Internet words'],['fq2','Headless shown: find head'],['fq1','Head shown: find headless']];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function pStats(){$('#p-stats').innerHTML=`<span>Score <b>${P.sc}/${P.tot}</b></span><span>Streak <b>${P.st}</b></span><span>Best <b>${P.best}</b></span>`}
 function pNext(){
@@ -943,16 +966,16 @@ if(!('serviceWorker' in navigator))return{t:'Service workers are not supported i
 if(!/^https?:$/.test(location.protocol))return{t:'Opened as a local file. Keep the file on your device and it opens offline. Host it over https with sw.js beside it to install it as an app.',b:''};
 let r=null;try{r=await navigator.serviceWorker.getRegistration()}catch{}
 return r&&r.active?{t:'Page cached for offline loading',b:ins}:{t:'sw.js was not found beside this page. Put sw.js in the same folder to enable offline loading from the web.',b:ins}}
-function iconUrl(z){try{const c=document.createElement('canvas');c.width=c.height=z;const g=c.getContext('2d');g.fillStyle='#0f1b1d';g.fillRect(0,0,z,z);g.fillStyle='#7fd1c0';g.font=`800 ${z*.62}px Sarabun,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('ก',z/2,z*.54);return c.toDataURL('image/png')}catch{return''}}
+function iconUrl(z){try{const c=document.createElement('canvas');c.width=c.height=z;const g=c.getContext('2d');g.fillStyle='#12141c';g.fillRect(0,0,z,z);g.fillStyle='#9bb8ff';g.font=`800 ${z*.62}px Sarabun,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('ก',z/2,z*.54);return c.toDataURL('image/png')}catch{return''}}
 function pwa(){
 try{
 const i1=iconUrl(192),i2=iconUrl(512),base=location.href.split('#')[0];
-const mf={name:'Thai Tone Master',short_name:'Tone Master',start_url:base,scope:base.replace(/[^/]*$/,''),display:'standalone',background_color:'#0f1b1d',theme_color:'#0f1b1d',icons:[{src:i1,sizes:'192x192',type:'image/png'},{src:i2,sizes:'512x512',type:'image/png'}]};
+const mf={name:'Thai Tone Master',short_name:'Tone Master',start_url:base,scope:base.replace(/[^/]*$/,''),display:'standalone',background_color:'#12141c',theme_color:'#12141c',icons:[{src:i1,sizes:'192x192',type:'image/png'},{src:i2,sizes:'512x512',type:'image/png'}]};
 const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));document.head.appendChild(l);
 const a=document.createElement('link');a.rel='apple-touch-icon';a.href=i1;document.head.appendChild(a)}catch{}
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(r=>{if(r.active)r.active.postMessage({cache:location.href.split('#')[0]})}).catch(()=>{})}
 function refresh(){const v=cur();if(v==='analyze')view();else if(v==='review')runReview();else if(v==='ref')runRef();else if(v==='calc')runCalc()}
-function net(){const on=online();$('#net').innerHTML=`<i style="background:${on?'var(--t-low)':'var(--t-rising)'}"></i>${on?'Online':'Offline'}`}
+function net(){const on=online();$('#net').innerHTML=`<i style="background:${on?'var(--ac)':'var(--t-rising)'}"></i>${on?'Online':'Offline'}`;$('#nd').style.background=on?'var(--ac)':'var(--t-rising)'}
 const TABS=[['analyze','Analyze'],['calc','Calculator'],['ref','Reference'],['practice','Practice'],['fonts','Font Compare'],['review','Review'],['history','History'],['offline','Offline']];
 function go(t){
 if(!TABS.some(x=>x[0]===t))t='analyze';
@@ -1006,7 +1029,7 @@ async warmh(){if(!online())return toast('Connect to the internet to save meaning
 cmode(v){cstop();CH.run=false;CH.m=v;CH.cur=null;CH.fb=null;CH.combo=0;CH.sc=0;CH.tot=0;CH.bc=0;CH.mt=null;CH.res=null;runCalc()},
 cstart(){cstart()},cans(v){cAns(v)},cnext(){cnext()},chint(){if(!CH.ans&&!CH.hint){CH.hint=true;cGame()}},
 mtap(v){mTap(v)},mnew(){CH.mt=null;cGame()},
-ftab(v){F.m=v;F.sc=0;F.tot=0;F.st=0;runFonts()},fflt(v){F.flt=v;fView()},fans(v){fAns(v)},fnext(){fNext()},
+ftab(v){F.m=v;F.sc=0;F.tot=0;F.st=0;runFonts()},fflt(v){F.flt=v;fView()},fans(v){fAns(v)},fnext(){fNext()},fagain(){runFonts()},
 fuse(v){store.set('ttm.font',v);$('#font').value=v;applyFont(v);fList()},
 fflip(v){const o=store.get('ttm.fstyle',{}),n=genOf(v)==='looped'?'loopless':'looped';if(n===FM[v].gen)delete o[v];else o[v]=n;store.set('ttm.fstyle',o);fillFonts();fList()},
 async pdl(v){const x=sources().find(y=>y.id===v);if(!x)return;if(!online())return toast('Connect to the internet to download');toast('Downloading…');try{const n=await packInstall(x);toast(`Saved ${n} words`)}catch(e){toast('Could not download: '+(e&&e.message||'failed'))}runOff()},
@@ -1036,7 +1059,7 @@ if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
 const v=cur();
 if(v==='practice'){const n=+e.key;if(n>=1&&n<=$$('#p-opts .opt').length&&!P.ans)$$('#p-opts .opt')[n-1].click();if((e.key==='Enter'||e.key===' ')&&P.ans&&!$('#p-next').hidden){e.preventDefault();pNext()}}
 if(v==='calc'&&CH.m!=='explore'&&CH.m!=='match'){const n=+e.key,b=$$('#c-steps .opt');if(!CH.ans&&n>=1&&n<=b.length)b[n-1].click();else if(CH.ans&&CH.m==='chal'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();cnext()}}
-if(v==='fonts'&&F.m!=='view'){const n=+e.key,b=F.m==='sort'?$$('#f-game .opt'):$$('#f-game .ft');if(!F.ans&&n>=1&&n<=b.length)b[n-1].click();else if(F.ans&&(e.key==='Enter'||e.key===' ')){e.preventDefault();fNext()}}
+if(v==='fonts'&&F.m!=='view'){const n=+e.key,b=$$('#f-game .ft');if(!F.ans&&n>=1&&n<=b.length)b[n-1].click();else if(F.ans&&(e.key==='Enter'||e.key===' ')){e.preventDefault();fNext()}}
 if(v==='review'&&rcur){if(!rev&&(e.key===' '||e.key==='Enter')){e.preventDefault();A.reveal()}else if(rev&&'123'.includes(e.key))grade(+e.key-1)}});
 $('#s-file').addEventListener('change',e=>{
 const f=e.target.files[0];if(!f)return;const r=new FileReader();
@@ -1060,6 +1083,7 @@ $('#k-file').addEventListener('change',e=>{
 const f=e.target.files[0];if(!f)return;const r=new FileReader();
 r.onload=async()=>{try{let d;try{d=JSON.parse(r.result)}catch{d=parseTable(r.result)}const en=normEntries(d);if(!en.length)throw 0;const x={id:'f'+Date.now().toString(36),name:f.name.slice(0,60),urls:[]};store.set('ttm.src',store.get('ttm.src',[]).concat([x]));const n=await packSave(x,en,'',en.length);toast(`Imported ${n} words`)}catch{toast('No Thai words found in that file')}runOff()};
 r.readAsText(f);e.target.value=''});
+document.addEventListener('click',e=>{const d=$('.set');if(d&&d.open&&!e.target.closest('.set'))d.open=false});
 function theme(l){document.documentElement.dataset.theme=l?'light':'dark';$('#theme').textContent=l?'Dark':'Light';store.set('ttm.light',l)}
 $('#theme').addEventListener('click',()=>theme(document.documentElement.dataset.theme!=='light'));
 $('#nav').innerHTML=`<div class="brand"><b>ก</b>Tone Master</div>`+TABS.map(([k,l])=>`<button class="tab" role="tab" data-t="${k}">${l}${k==='review'?'<i hidden></i>':''}</button>`).join('');
