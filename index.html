@@ -22,10 +22,11 @@ nav{position:sticky;top:0;height:100vh;padding:20px 12px;border-right:1px solid 
 .tab:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .tab[aria-selected=true]{background:var(--ac);color:var(--on)}
 .tab i{font-style:normal;font-size:.72rem;background:var(--t-falling);color:#fff;border-radius:9px;padding:0 7px}
-main{padding:22px clamp(16px,4vw,44px) 40px;max-width:1060px;width:100%}
-.top{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px}
-h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
-.sub{color:var(--mu);margin-bottom:18px;max-width:66ch}
+main{position:relative;padding:10px clamp(16px,4vw,44px) 40px;max-width:1060px;width:100%}
+.top{position:absolute;top:10px;right:clamp(16px,4vw,44px);z-index:25}
+.ex summary{cursor:pointer;color:var(--mu);font-weight:600;font-size:.85rem;margin:6px 0}
+h2{font-size:1.3rem;font-weight:800;margin-bottom:2px;min-height:38px;display:flex;align-items:center}
+.sub{color:var(--mu);margin-bottom:10px;max-width:66ch;font-size:.9rem}
 .panel{display:none}.panel.on{display:block}
 .card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:18px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -152,17 +153,22 @@ main{padding-bottom:90px}#toast{bottom:84px}}
 <label>Romanization<select id="rsys" aria-label="Romanization system"><option value="simple">Simple</option><option value="pai">Paiboon+</option><option value="ipa">IPA</option><option value="rtgs">RTGS</option></select></label>
 <label>Speech speed<select id="spd" aria-label="Speech speed"><option value="1">1.0x</option><option value="0.85">0.85x</option><option value="0.75">0.75x</option><option value="0.5">0.5x</option></select></label>
 <label>Thai font<select id="font" aria-label="Thai font"></select></label>
+ <button class="btn sm p" data-a="upd">Check for update</button>
 <div class="row"><button class="btn sm" id="cbt" aria-pressed="false" aria-label="Tone patterns for color blindness">Patterns</button><button class="btn sm" id="theme" aria-label="Toggle theme">Light</button></div></div></details></div>
 
 <section class="panel" id="v-analyze">
 <h2>Analyze</h2>
-<p class="sub">Type or paste text in any language. Thai is analyzed directly. Anything else is translated to Thai first, then you get the whole Thai sentence and every Thai word with its meaning, romanization, tone and rule.</p>
+<p class="sub">Type text in any language. Non-Thai text is translated to Thai first.</p>
 <label class="lb" for="a-in">Any language</label>
 <textarea id="a-in" placeholder="Hello, how are you? / สวัสดี / 你好 / Gracias"></textarea>
 <div class="row" style="margin:10px 0 6px"><button class="btn p" data-a="agoo">Analyze</button><button class="btn" data-a="aclr">Clear</button><span class="wa">Ctrl + Enter</span></div>
+<div id="a-sug"></div>
+<details class="ex"><summary>Examples and recent</summary>
 <div class="row" id="a-ex" style="margin-top:8px"></div>
 <div class="row" id="a-ex2" style="margin-top:8px"></div>
-<div class="row" id="a-rc" style="margin:8px 0 16px"></div>
+<div class="row" id="a-rc" style="margin:8px 0 8px"></div>
+</details>
+<div style="height:8px"></div>
 <div id="a-out"></div>
 </section>
 
@@ -344,9 +350,9 @@ const WS="กา,crow;กบ,frog;ไก่,chicken;เก้า,nine;โต๊�
 const LEX={};
 WS.split(';').forEach(r=>{const[w,m]=r.split(',');LEX[w]={m,a:[]}});
 const DM=new Map();
-let REV={};
+let REV={},SENT=null;
 function buildRev(){
-REV={};
+REV={};SENT=null;
 const add=(th,v)=>[v.m,...(v.a||[])].forEach(e=>{const k=String(e).toLowerCase().replace(/^to /,'').trim();if(k&&!REV[k])REV[k]=th});
 Object.entries(LEX).forEach(([th,v])=>add(th,v));
 DM.forEach((v,th)=>{if(th.length<=8)add(th,v)})}
@@ -431,7 +437,8 @@ const w=pk(o,['thai','word','th','Thai','headword','entry','w']).trim().split(/[
 if(!THW.test(w))return;
 const parts=pk(o,['meaning','english','en','definition','gloss','translation','m']).replace(/[^\x20-\x7EÀ-ɏ]/g,'').split(/\s*[\/;,]\s*/).map(x=>x.replace(/^\([^)]*\)\s*/,'').trim().slice(0,60)).filter(Boolean);
 if(!parts.length)return;
-out.push({w,m:parts[0],a:parts.slice(1,3),r:pk(o,['transliteration','romanization','roman','rom','pronunciation']).split('•')[0].trim()})});
+const ex=pk(o,['sample','example','sentence','example_th']).trim();
+out.push({w,m:parts[0],a:parts.slice(1,3),r:pk(o,['transliteration','romanization','roman','rom','pronunciation']).split('•')[0].trim(),x:/[\u0E01-\u0E4E]/.test(ex)&&ex.length>=4&&ex.length<=140?ex:''})});
 return out}
 
 function parseTable(txt){
@@ -453,8 +460,8 @@ return{ents:e,url:u,total:Array.isArray(d)?d.length:e.length}}catch(x){err=x}}
 throw err||new Error('no source address')}
 async function packSave(src,ents,url,total){
 const map=new Map();
-ents.forEach(e=>{const o=map.get(e.w);if(!o)map.set(e.w,{m:e.m,a:e.a.slice(),r:e.r,s:src.id});else if(e.m!==o.m&&o.a.length<3&&!o.a.includes(e.m))o.a.push(e.m)});
-const rows=[...map.entries()].map(([k,v])=>{const ex=DM.get(k);if(ex&&ex.s&&ex.s!==src.id){const a=[...new Set([...(ex.a||[]),v.m,...v.a].filter(x=>x&&x!==ex.m))].slice(0,3);return[k,{...ex,a,r:ex.r||v.r}]}return[k,v]});
+ents.forEach(e=>{const o=map.get(e.w);if(!o)map.set(e.w,{m:e.m,a:e.a.slice(),r:e.r,x:e.x||'',s:src.id});else if(!o.x&&e.x)o.x=e.x;else if(e.m!==o.m&&o.a.length<3&&!o.a.includes(e.m))o.a.push(e.m)});
+const rows=[...map.entries()].map(([k,v])=>{const ex=DM.get(k);if(ex&&ex.s&&ex.s!==src.id){const a=[...new Set([...(ex.a||[]),v.m,...v.a].filter(x=>x&&x!==ex.m))].slice(0,3);return[k,{...ex,a,r:ex.r||v.r,x:ex.x||v.x||''}]}return[k,v]});
 if(!(await idb.putMany('dict',rows)))throw new Error('could not store the words');
 rows.forEach(([k,v])=>DM.set(k,v));
 await idb.put('meta','pack:'+src.id,{n:rows.length,total,ts:Date.now(),url});
@@ -653,6 +660,36 @@ $('#a-ex').innerHTML=`<span class="wa" style="min-width:90px">Thai</span>`+EX.ma
 $('#a-ex2').innerHTML=`<span class="wa" style="min-width:90px">Other languages</span>`+EXS.map(x=>b(x[0])).join('');
 const h=hist.get().slice(0,6);
 $('#a-rc').innerHTML=h.length?`<span class="wa" style="min-width:90px">Recent</span>`+h.map(x=>`<button class="btn" data-a="hopen" data-v="${esc(x.id)}">${esc(x.input.length>24?x.input.slice(0,24)+'…':x.input)}</button>`).join(''):''}
+
+function sents(){
+if(SENT)return SENT;
+const out=[],seen=new Set(),add=(t,m,src)=>{t=String(t||'').trim();if(t.length<3||seen.has(t))return;seen.add(t);out.push({t,m:m||'',src})};
+DM.forEach((v,w)=>{if(v.x)add(v.x,w+' · '+v.m,'Example')});
+EXS.forEach(x=>add(x[1],x[0],'Phrasebook'));EX.forEach(x=>add(x,'','Starter'));
+SENT=out;return out}
+function suggest(q){
+q=q.trim();
+if(!q||q.length>60)return null;
+const th=isTh(q),ql=q.toLowerCase(),words=[],ws=new Set(),all=[...Object.entries(LEX),...DM.entries()];
+const addw=(w,m)=>{if(w!==q&&!ws.has(w)&&words.length<10){ws.add(w);words.push({w,m})}};
+if(th){all.forEach(([w,v])=>{if(w.startsWith(q))addw(w,v.m)});all.forEach(([w,v])=>{if(w.includes(q))addw(w,v.m)})}
+else{
+const parts=v=>[v.m,...(v.a||[])].map(x=>String(x).toLowerCase().replace(/^to /,'').trim());
+all.forEach(([w,v])=>{if(parts(v).some(p=>p.startsWith(ql)))addw(w,v.m)});
+all.forEach(([w,v])=>{if(parts(v).some(p=>p.includes(ql)))addw(w,v.m)})}
+const pool=hist.get().map(h=>({t:h.th,m:h.input!==h.th?h.input:'',src:'History'})).concat(sents()),sl=[];
+pool.forEach(x=>{
+if(th){if(x.t!==q&&x.t.includes(q))sl.push({...x,p:x.t.startsWith(q)?0:1})}
+else if(((x.m||'')+' '+x.src).toLowerCase().includes(ql))sl.push({...x,p:1})});
+sl.sort((a,b)=>a.p-b.p||a.t.length-b.t.length);
+return{words,sents:sl.slice(0,6)}}
+function sugRender(){
+const el=$('#a-sug');
+if(!el)return;
+const r=suggest($('#a-in').value);
+if(!r||(!r.words.length&&!r.sents.length)){el.innerHTML='';return}
+el.innerHTML=`<div class="card" style="padding:10px 12px;margin:8px 0">${r.words.length?`<div class="wa" style="margin-bottom:6px">Complete with a word</div><div class="row">${r.words.map(x=>`<button class="btn sm" data-a="sugw" data-v="${esc(x.w)}"><span class="th">${esc(x.w)}</span> <span class="wa">${esc(String(x.m).slice(0,24))}</span></button>`).join('')}</div>`:''}${r.sents.length?`<div class="wa" style="margin:10px 0 6px">Sentences</div>${r.sents.map(x=>`<button class="btn sm" style="display:block;width:100%;text-align:left;margin-bottom:6px" data-a="sugs" data-v="${esc(x.t)}"><span class="th" style="font-size:1.1rem">${esc(x.t)}</span> <span class="wa">${esc(x.m||x.src)}</span></button>`).join('')}`:''}</div>`}
+let sgT;
 async function warm(){
 const ws=new Set();hist.get().forEach(e=>parse(e.th).forEach(t=>t.sy&&ws.add(t.o||t.w)));
 const L=[...ws];let n=0;
@@ -847,12 +884,12 @@ const bonus=F.sc>=8?10:F.sc>=5?5:2;award(bonus,{});
 $('#f-game').innerHTML=`<div class="pop" style="text-align:center"><div class="big" style="font-size:3rem">${F.sc}/${FR}</div><div class="sub">${F.sc>=8?'Sharp eyes':F.sc>=5?'Getting there':'Keep comparing the letter shapes'} · +${bonus} XP${nb?' · new best':''} · best ${F.best}</div><div class="row" style="justify-content:center;margin-top:14px"><button class="btn p" data-a="fagain">Play again</button></div></div>`}
 
 const V={m:'cards',src:store.get('ttm.vsrc','all'),cur:null,ans:true,sc:0,tot:0,st:0,seq:0,flip:false,mt:null,q:'',dk:null,dkey:''};
-const VMODES=[['cards','Cards'],['mean','Meaning'],['rev','Thai from English'],['listen','Listen'],['say','Pronounce'],['match','Match'],['browse','Browse']];
+const VMODES=[['cards','Cards'],['mean','Meaning'],['fill','Fill the blank'],['rev','Thai from English'],['listen','Listen'],['say','Pronounce'],['match','Match'],['browse','Browse']];
 const vw={get:()=>store.get('ttm.vw',{}),bump(w,ok){const d=this.get(),e=d[w]||(d[w]={ok:0,ng:0});if(ok)e.ok++;else e.ng++;store.set('ttm.vw',d)}};
 function vdeck(){
 const key=V.src+'|'+DM.size;
 if(V.dk&&V.dkey===key)return V.dk;
-const mp=new Map(),add=(w,v,s)=>{if(w.length>12||mp.has(w))return;mp.set(w,{w,m:v.m,a:v.a||[],r:v.r||'',s})};
+const mp=new Map(),add=(w,v,s)=>{if(w.length>12)return;const o=mp.get(w);if(o){if(!o.x&&v.x)o.x=v.x;if(!o.r&&v.r)o.r=v.r;return}mp.set(w,{w,m:v.m,a:v.a||[],r:v.r||'',s,x:v.x||''})};
 if(V.src==='all'||V.src==='seed')Object.entries(LEX).forEach(([w,v])=>add(w,v,'seed'));
 DM.forEach((v,w)=>{if(V.src==='all'||V.src===v.s)add(w,v,v.s)});
 V.dk=[...mp.values()];V.dkey=key;return V.dk}
@@ -883,6 +920,7 @@ if(V.m==='browse')return vBrowse();
 if(V.m==='match')return vMatch();
 if(V.m==='cards')return vCards();
 if(V.m==='say')return vSay();
+if(V.m==='fill')return vFill();
 vQuiz()}
 function vCards(){
 const d=vdeck();
@@ -911,9 +949,9 @@ if(ok){V.sc++;V.st++}else V.st=0;
 const sy=vsy(c.w);
 vw.bump(c.w,ok);award(ok?6:1,{ok,combo:V.st});
 if(!ok)srs.add(c.w,tn(sy),c.m,false);
-$('#w-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${esc(c.w)}</b> ${esc(vrom(sy))} · ${esc(c.m)}${c.a.length?` (${c.a.map(esc).join(', ')})`:''}`;
+$('#w-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${esc(c.w)}</b> ${esc(vrom(sy))} · ${esc(c.m)}${c.a.length?` (${c.a.map(esc).join(', ')})`:''}${V.m==='fill'?`<div class="th" style="font-size:1.2rem;margin-top:6px">${esc(c.x)}</div>`:''}`;
 $('#w-nx').hidden=false;
-if(V.m!=='listen'||!ok)spk(c.w);
+if(V.m!=='listen'||!ok)spk(V.m==='fill'?c.x:c.w);
 const q=V.seq;if(ok)setTimeout(()=>{if(q===V.seq&&V.ans&&cur()==='vocab')vBody()},1500)}
 function vSay(){
 const d=vdeck().filter(x=>{const n=vsy(x.w).length;return n>=1&&n<=3});
@@ -952,6 +990,14 @@ M.sel=null;
 if(wa===wb){M.ok.add(wa);V.st++;V.sc++;V.tot++;vw.bump(wa,true);award(6+Math.min(V.st,10),{ok:1,combo:V.st});spk(wa);if(M.ok.size===M.ws.length){M.fin=Math.max(3,12-M.miss*3);award(M.fin,{})}}
 else{M.miss++;V.st=0;V.tot++;vw.bump(wa,false);award(1,{ok:0});M.flash=[a,b];const x=M.ws.find(y=>y.w===wa);if(x)srs.add(x.w,tn(vsy(x.w)),x.m,false)}
 vMatch()}
+function vFill(){
+const all=vdeck(),d=all.filter(x=>x.x&&x.x.includes(x.w));
+if(d.length<4){$('#w-body').innerHTML='<div class="empty card">No example sentences saved yet. Open the Offline tab and press Update on the LEXiTRON source to download words with example sentences.<div class="row" style="justify-content:center;margin-top:12px"><button class="btn p" data-a="goof">Open Offline tab</button></div></div>';return}
+const c=vpick(V.cur&&V.cur.c&&V.cur.c.w,d);
+const pool=shuffle(all.filter(x=>x.w!==c.w&&!c.x.includes(x.w)&&Math.abs(x.w.length-c.w.length)<=2)),pl=pool.length>=3?pool:shuffle(all.filter(x=>x.w!==c.w&&!c.x.includes(x.w)));
+const opts=shuffle([c,...pl.slice(0,3)]);
+V.cur={mode:'fill',c,opts};V.ans=false;
+$('#w-body').innerHTML=`<div class="card"><div class="thbig th" style="text-align:center;padding:10px 0">${esc(c.x.replace(c.w,'＿＿＿'))}</div><p class="sub" style="text-align:center">Which word completes the sentence? Meaning of the missing word: <b>${esc(c.m)}</b></p><div class="opts" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${opts.map((x,i)=>`<button class="opt" data-a="vans" data-v="${i}"><kbd>${i+1}</kbd><span class="th" style="font-size:1.6rem">${esc(x.w)}</span></button>`).join('')}</div><div class="fb" id="w-fb" aria-live="polite"></div><div class="row" style="justify-content:center"><button class="btn p" id="w-nx" data-a="vnext" hidden>Next (Enter)</button></div></div>`+vFoot()}
 function vBrowseList(){
 const el=$('#v-list');if(!el)return;
 const q=V.q.toLowerCase(),L=vdeck().filter(x=>!q||x.w.includes(V.q)||x.m.toLowerCase().includes(q)||x.a.some(a=>a.toLowerCase().includes(q))||(x.r||'').toLowerCase().includes(q)).slice(0,60);
@@ -988,7 +1034,7 @@ h='<p class="sub">Same consonant and vowel, different tone. Only the pitch chang
 $('#r-body').innerHTML=h}
 const WORDS=WS.split(';').map(r=>{const[w,m]=r.split(',');const s=parse(w)[0].sy[0];return{w,m,t:s.tone,s,why:ruleText(s.cl,s.mk,s.live,s.len,s.tone)}});
 
-let RP=null,fqSeq=0;
+let RP=null;
 function rpool(){
 if(RP)return RP;
 RP=[];
@@ -997,27 +1043,14 @@ return RP}
 const allWords=()=>WORDS.concat(rpool());
 const FW=['ขอบคุณ','ภาษาไทย','ตัวอักษร','ข้าวผัด','สวัสดี','บ้านเรา','ฟุตบอล','พัฒนา','ชีวิตดี','ซอฟต์แวร์','ปลาทู','ผู้หญิง','อร่อยมาก','ขนมปัง','พี่น้อง','ตลาดเช้า'];
 const fam=id=>`'${FM[id].fam}',sans-serif`;
-async function fqNext(){
-const my=++fqSeq,a=P.mode==='fq1'?'looped':'loopless',b=a==='looped'?'loopless':'looped';
-P.cur=null;$('#p-q').textContent='…';$('#p-opts').innerHTML='';$('#p-fb').textContent='Loading fonts…';pStats();
-const sh=await fontPool(a,4),co=await fontPool(b,1);
-if(my!==fqSeq)return;
-if(sh.length<4||!co.length){$('#p-q').textContent='–';$('#p-fb').textContent=online()?'Not enough fonts loaded. Try again in a moment.':'Fonts are not saved on this device yet. Connect once and save them in the Offline tab.';$('#p-next').hidden=false;P.ans=true;return}
-const w=pick(FW),opts=shuffle([co[0],sh[1],sh[2],sh[3]]);
-P.cur={w,ans:co[0],shown:sh[0],opts,a,b};
-const q=$('#p-q');q.textContent=w;q.style.fontFamily=fam(sh[0]);
-$('#p-fb').textContent=`Shown in a ${a} font. Pick the ${b==='loopless'?'loopless (modern, headless)':'looped (traditional)'} version.`;
-$('#p-opts').innerHTML=opts.map((id,i)=>`<button class="opt" data-a="pans" data-v="${id}"><kbd>${i+1}</kbd><span style="font-family:${fam(id)};font-size:1.9rem;font-weight:700">${esc(w)}</span></button>`).join('');
-pStats()}
 const MPS="คา,to be stuck;ข่า,galangal;ค่า,value;ค้า,to trade;ขา,leg|เสือ,tiger;เสื่อ,mat;เสื้อ,shirt|ไหม,silk;ใหม่,new;ไม่,not;ไม้,wood|ใกล้,near;ไกล,far|ขาว,white;ข่าว,news;ข้าว,rice|หมา,dog;ม้า,horse;มา,come";
 const MP=MPS.split('|').map(g=>g.split(';').map(x=>{const[w,m]=x.split(','),s=parse(w)[0].sy[0];return{w,m,t:s.tone,s}}));
 const P={mode:'tone',cur:null,ans:true,sc:0,tot:0,st:0,best:store.get('ttm.best',0)};
-const PM=[['tone','Read the tone'],['listen','Listen'],['pairs','Minimal pairs'],['class','Letter class'],['net','Internet words'],['fq2','Headless shown: find head'],['fq1','Head shown: find headless']];
+const PM=[['tone','Read the tone'],['listen','Listen'],['pairs','Minimal pairs'],['class','Letter class'],['net','Internet words']];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function pStats(){$('#p-stats').innerHTML=`<span>Score <b>${P.sc}/${P.tot}</b></span><span>Streak <b>${P.st}</b></span><span>Best <b>${P.best}</b></span>`}
 function pNext(){
-P.ans=false;$('#p-fb').textContent='';$('#p-next').hidden=true;$('#p-q').style.fontFamily='';fqSeq++;
-if(P.mode==='fq1'||P.mode==='fq2'){fqNext();return}
+P.ans=false;$('#p-fb').textContent='';$('#p-next').hidden=true;$('#p-q').style.fontFamily='';
 if(P.mode==='pairs'){let g,w;do{g=pick(MP);w=pick(g)}while(P.cur&&P.cur.w===w.w);
 P.cur={w:w.w,m:w.m,t:w.t,s:w.s,why:ruleText(w.s.cl,w.s.mk,w.s.live,w.s.len,w.s.tone),set:g};
 $('#p-q').textContent='?';$('#p-q').className='big th';
@@ -1032,12 +1065,11 @@ if(P.mode==='listen')spk(w.w)}
 pStats()}
 function pAns(v){
 if(P.ans||!P.cur)return;P.ans=true;P.tot++;
-const c=P.cur,fq=P.mode==='fq1'||P.mode==='fq2',right=fq?c.ans:P.mode==='class'?c.cl:P.mode==='pairs'?c.w:c.t,ok=v===right;
+const c=P.cur,right=P.mode==='class'?c.cl:P.mode==='pairs'?c.w:c.t,ok=v===right;
 $$('#p-opts .opt').forEach(b=>{b.disabled=true;if(b.dataset.v===right)b.classList.add('ok');else if(b.dataset.v===v)b.classList.add('ng')});
-log.bump('a');award(ok?(fq?8:6):1,{ok,font:fq});
+log.bump('a');award(ok?6:1,{ok});
 if(ok){log.bump('c');P.sc++;P.st++;if(P.st>P.best){P.best=P.st;store.set('ttm.best',P.best)}}else P.st=0;
 if(P.mode==='class'){$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${c.c}</b> ${c.n} is ${c.cl} class (${c.m.toLowerCase()}).`}
-else if(fq){$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b>${esc(FM[c.ans].fam)}</b> is ${c.b}. ${c.opts.filter(i=>i!==c.ans).map(i=>esc(FM[i].fam)).join(', ')} are ${c.a}. Shown font: ${esc(FM[c.shown].fam)}.`;$$('#p-opts .opt').forEach(b=>b.insertAdjacentHTML('beforeend',`<small style="display:block;font:600 .7rem Figtree;color:var(--mu)">${esc(FM[b.dataset.v].fam)}</small>`))}
 else{$('#p-q').textContent=c.w;$('#p-fb').innerHTML=`${ok?'Correct':'Not quite'}: <b class="th">${c.w}</b> ${esc(fr(c.s))} (${esc(c.m)}). ${esc(c.why)}.${c.set?`<br>Compare: ${c.set.map(x=>`<span class="th">${esc(x.w)}</span> ${T[x.t][0]}`).join(' · ')}`:''}`;srs.add(c.w,T[c.t][0],c.m,ok)}
 pStats();
 if(ok)setTimeout(()=>{if(P.ans&&$('#v-practice').classList.contains('on'))pNext()},1000);else $('#p-next').hidden=false}
@@ -1072,6 +1104,7 @@ const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-1
 const mx=Math.max(1,...days.map(x=>x.v));
 $('#h-top').innerHTML=`<div class="grid">${[['Analyses',n],['Saved phrases',h.length],['Review words',Object.keys(srs.get()).length],['Practice accuracy',a?Math.round(c/a*100)+'%':'–'],['Day streak',streak(l)]].map(([k,v])=>`<div class="card stat"><b>${v}</b><span>${k}</span></div>`).join('')}</div><div class="card" style="margin-top:12px"><label class="lb">Last 14 days</label><div class="bars" role="img" aria-label="Activity over the last 14 days">${days.map(d=>`<div class="bar" title="${d.k}: ${d.n} analyses, ${d.a} answers" style="height:${Math.max(3,d.v/mx*100)}%"></div>`).join('')}</div></div>`;
 $('#h-q').value=hQ;histList()}
+const hashOf=t=>{let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)+t.length};
 const mb=n=>(n/1048576).toFixed(1)+' MB';
 async function runOff(){
 const el=$('#o-body');
@@ -1086,7 +1119,7 @@ const ST={available:'Ready, works offline',downloading:'Downloading…',unsuppor
 const sw=await swState();
 const row=(t,d,b)=>`<div class="orow"><div><b>${t}</b><span class="wa">${d}</span></div><div class="row">${b||''}</div></div>`;
 el.innerHTML=row('Connection',online()?'Online':'Offline')+
-row('App page',sw.t,sw.b)+
+row('App page',sw.t,(sw.b||'')+'<button class="btn sm p" data-a="upd">Check for update</button>')+
 row('Fonts',`${fcs.length} of ${Object.keys(FM).length} font families saved (${mb(fsz)})`,'<button class="btn sm p" data-a="fdl">Download all</button>'+(fcs.length?'<button class="btn sm" data-a="fclr">Remove</button>':''))+
 pairs.map(p=>row(`On-device translator ${p.s} → ${p.t}`,p.a==='downloadable'?'Not downloaded yet':ST[p.a]||p.a,p.a==='downloadable'?`<button class="btn sm p" data-a="odl" data-v="${p.s}|${p.t}">Download</button>`:'')).join('')+
 row('Saved translations',`${ntr} saved, reused without a connection`,'<button class="btn sm" data-a="cltr">Clear</button>')+
@@ -1138,7 +1171,8 @@ addall(){if(!R||!R.words)return;R.words.forEach(x=>srs.add(x.w,tn(x.sy),x.g&&x.g
 copyrom(){if(R&&R.toks)copy(R.toks.map(t=>t.x||t.sy.map(fr).join('-')).join(' '))},
 cpth(){copy(R&&R.th)},
 agoo(){analyze(true)},
-aclr(){$('#a-in').value='';sel=0;analyze(true);$('#a-in').focus()},
+sugw(v){$('#a-in').value=v;$('#a-sug').innerHTML='';sel=0;analyze(true)},sugs(v){$('#a-in').value=v;$('#a-sug').innerHTML='';sel=0;analyze(true)},
+aclr(){$('#a-sug').innerHTML='';$('#a-in').value='';sel=0;analyze(true);$('#a-in').focus()},
 analyzew(v){$('#a-in').value=v;sel=0;go('analyze');analyze(true)},
 cset(v,b){const k=b.dataset.k;CS[k]=CS[k]===v?'':v;if(k==='cl'&&v!=='mid'&&'๊๋'.includes(CS.mk))CS.mk='';if(k==='mk'){CS.ty='';CS.ln=''}if(k==='ty')CS.ln='';runCalc()},
 rtab(v){rTab=v;runRef()},
@@ -1181,6 +1215,22 @@ vadd(){const c=V.cur&&V.cur.c;if(c){srs.add(c.w,tn(vsy(c.w)),c.m);toast('Added t
 vaddw(v){const x=vdeck().find(y=>y.w===v);if(x){srs.add(x.w,tn(vsy(x.w)),x.m);toast('Added to review')}},
 vtap(v){vTap(v)},vmnew(){V.mt=null;vMatch()},
 goof(){go('offline')},
+async upd(){
+if(!/^https?:$/.test(location.protocol))return toast('Updates work when the app is opened from its web address');
+if(!online())return toast('Connect to the internet to check for updates');
+toast('Checking for updates…');
+try{
+const base=location.href.split('#')[0].split('?')[0],r=await fetch(base,{cache:'reload'});
+if(!r.ok)throw new Error('HTTP '+r.status);
+const txt=await r.text();
+if(!/<title>/i.test(txt))throw new Error('unexpected page');
+const h=hashOf(txt),old=store.get('ttm.ver','');
+try{const g=await navigator.serviceWorker.getRegistration();if(g)await g.update()}catch{}
+if(old&&old===h)return toast('You already have the latest version');
+try{const c=await caches.open('ttm-shell-v1');await c.put(base,new Response(txt,{headers:{'Content-Type':'text/html'}}))}catch{}
+store.set('ttm.ver',h);
+toast('Updated. Reloading…');setTimeout(()=>location.reload(),700)}
+catch(e){toast('Could not check: '+(e&&e.message||'failed'))}},
 async dlall(){
 toast('Preparing offline data…');
 try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch{}
@@ -1193,7 +1243,7 @@ document.addEventListener('click',e=>{
 const t=e.target.closest('[data-t]');if(t&&t.closest('#nav'))return go(t.dataset.t);
 const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b.dataset.v,b)});
 document.addEventListener('input',e=>{
-if(e.target.id==='a-in'){sel=0;clearTimeout(aT);const v=e.target.value.trim();aT=setTimeout(()=>analyze(false),isTh(v)?250:900)}
+if(e.target.id==='a-in'){clearTimeout(sgT);sgT=setTimeout(sugRender,180);sel=0;clearTimeout(aT);const v=e.target.value.trim();aT=setTimeout(()=>analyze(false),isTh(v)?250:900)}
 if(e.target.id==='v-q'){V.q=e.target.value.trim();vBrowseList()}
 if(e.target.id==='f-txt'){F.txt=e.target.value;fList()}
 if(e.target.id==='h-q'){hQ=e.target.value.trim();histList()}
@@ -1206,7 +1256,7 @@ const v=cur();
 if(v==='practice'){const n=+e.key;if(n>=1&&n<=$$('#p-opts .opt').length&&!P.ans)$$('#p-opts .opt')[n-1].click();if((e.key==='Enter'||e.key===' ')&&P.ans&&!$('#p-next').hidden){e.preventDefault();pNext()}}
 if(v==='calc'&&CH.m!=='explore'&&CH.m!=='match'){const n=+e.key,b=$$('#c-steps .opt');if(!CH.ans&&n>=1&&n<=b.length)b[n-1].click();else if(CH.ans&&CH.m==='chal'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();cnext()}}
 if(v==='fonts'&&F.m!=='view'){const n=+e.key,b=$$('#f-game .ft');if(!F.ans&&n>=1&&n<=b.length)b[n-1].click();else if(F.ans&&(e.key==='Enter'||e.key===' ')){e.preventDefault();fNext()}}
-if(v==='vocab'){const o=$$('#w-body .opt');if(['mean','rev','listen','say'].includes(V.m)){const n=+e.key;if(!V.ans&&n>=1&&n<=o.length)o[n-1].click();else if(V.ans&&(e.key==='Enter'||e.key===' ')){e.preventDefault();vBody()}}else if(V.m==='cards'&&(e.key===' '||e.key==='Enter')){e.preventDefault();if(V.flip)A.vgrade('1');else A.vflip()}}
+if(v==='vocab'){const o=$$('#w-body .opt');if(['mean','rev','listen','say','fill'].includes(V.m)){const n=+e.key;if(!V.ans&&n>=1&&n<=o.length)o[n-1].click();else if(V.ans&&(e.key==='Enter'||e.key===' ')){e.preventDefault();vBody()}}else if(V.m==='cards'&&(e.key===' '||e.key==='Enter')){e.preventDefault();if(V.flip)A.vgrade('1');else A.vflip()}}
 if(v==='review'&&rcur){if(!rev&&(e.key===' '||e.key==='Enter')){e.preventDefault();A.reveal()}else if(rev&&'123'.includes(e.key))grade(+e.key-1)}});
 $('#s-file').addEventListener('change',e=>{
 const f=e.target.files[0];if(!f)return;const r=new FileReader();
@@ -1250,6 +1300,7 @@ $('#cbt').setAttribute('aria-pressed',String(CB));
 $('#cbt').addEventListener('click',e=>{CB=!CB;store.set('ttm.cb',CB);e.currentTarget.setAttribute('aria-pressed',String(CB));refresh()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(cur()==='offline')runOff()});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(pwa);
+if(/^https?:$/.test(location.protocol)&&online()&&!store.get('ttm.ver','')){fetch(location.href.split('#')[0].split('?')[0],{cache:'reload'}).then(r=>r.ok?r.text():'').then(t=>{if(t)store.set('ttm.ver',hashOf(t))}).catch(()=>{})}
 net();chips();badge();go(location.hash.slice(1));
 </script>
 </body>
